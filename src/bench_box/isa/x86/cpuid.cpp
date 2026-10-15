@@ -363,5 +363,25 @@ namespace bench_box {
 
 		return result;
 	}
+
+	[[nodiscard]] cpu_brand_info get_cpu_brand_info() noexcept {
+		cpu_brand_info result{};
+		result.brand_string = get_cpu_brand_string();
+
+		if (result.brand_string.find("Intel") != std::string::npos) {
+			result.vendor = cpu_brand_info::INTEL;
+		} else if (result.brand_string.find("AMD") != std::string::npos) {
+			result.vendor = cpu_brand_info::AMD;
+		} else {
+			result.vendor = cpu_brand_info::OTHER;
+		}
+
+		int regs[4] = { 0, 0, 0, 0 };
+		cpuid(1, 0, regs);
+		result.family = (regs[0] >> 8) & 0x0F;
+		result.model = ((regs[0] >> 16) & 0x0F) << 4 | ((regs[0] >> 4) & 0x0F;
+
+		return result;
+	}
 } // namespace bench_box
 #endif

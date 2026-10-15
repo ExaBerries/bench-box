@@ -3,6 +3,7 @@
 #if defined(BENCH_BOX_ISA_X86_64) || defined(BENCH_BOX_ISA_X86)
 #include <string>
 #include <cstdint>
+#include <array>
 
 namespace bench_box {
 	enum struct avx10_vector_length_t {
@@ -89,9 +90,21 @@ namespace bench_box {
 		uint64_t crystal_clock_hz = 0ull;
 	};
 
+	struct cpu_brand_info {
+		std::string brand_string;
+		enum {
+			INTEL,
+			AMD,
+			OTHER
+		} vendor = INTEL;
+		int32_t family = 0;
+		int32_t model = 0;
+	};
+
 	[[nodiscard]] std::string get_cpu_brand_string() noexcept;
 	[[nodiscard]] x86_extensions get_cpu_supported_isas() noexcept;
 	[[nodiscard]] std::string get_cpu_isa_string() noexcept;
 	[[nodiscard]] tsc_clock_info get_tsc_clock_info() noexcept;
+	[[nodiscard]] cpu_brand_info get_cpu_brand_info() noexcept;
 } // namespace bench_box
 #endif

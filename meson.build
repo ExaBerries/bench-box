@@ -73,6 +73,7 @@ sources_core = [
 	'src/bench_box/threading/threading.cpp',
 	'src/bench_box/threading/topology.cpp',
 	'src/bench_box/timer.cpp',
+	'src/bench_box/hwbot.cpp',
 	'src/bench_box/format.cpp',
 	'src/bench_box/console.cpp',
 	'src/bench_box/isa/x86/cpuid.cpp'
