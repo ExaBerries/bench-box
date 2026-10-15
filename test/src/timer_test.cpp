@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 #include <bench_box/timer.h>
+#include <bench_box/timer_int.h>
 
 #include <chrono>
 #include <limits>
@@ -83,6 +84,22 @@ TEST(Timer, overflow_check) {
 	EXPECT_FALSE(will_overflow_within(coarse, coarse_now(), 3600));
 	EXPECT_TRUE(will_overflow_within(fast, fast_now(), std::numeric_limits<int64_t>::max()));
 	EXPECT_TRUE(will_overflow_within(coarse, coarse_now(), std::numeric_limits<int64_t>::max()));
+}
+
+TEST(Timer, classify_via_frequency) {
+	using namespace bench_box;
+	EXPECT_EQ(detect_timer_source_x86(1'193'182ll, 1'000'000'000ll, true), timer_source::PIT);
+	EXPECT_EQ(detect_timer_source_x86(32'000'000ll, 1'000'000'000ll, true), timer_source::RTC);
+	EXPECT_EQ(detect_timer_source_x86(3'579'000ll, 1'000'000'000ll, true), timer_source::ACPI_PM);
+	EXPECT_EQ(detect_timer_source_x86(10'000'000ll, 1'000'000'000ll, true), timer_source::INVARIANT_TSC);
+	EXPECT_EQ(detect_timer_source_x86(10'000'000ll, 1'000'000'000ll, false), timer_source::TSC);
+	EXPECT_EQ(detect_timer_source_x86(14'320'000ll, 1'000'000'000ll, true), timer_source::HPET);
+	EXPECT_EQ(detect_timer_source_x86(19'200'000ll, 1'000'000'000ll, true), timer_source::HPET);
+	EXPECT_EQ(detect_timer_source_x86(20'000'000ll, 1'000'000'000ll, true), timer_source::HPET);
+	EXPECT_EQ(detect_timer_source_x86(20'000'000ll, 20'000'000ll, true), timer_source::INVARIANT_TSC);
+	EXPECT_EQ(detect_timer_source_x86(24'000'000ll, 20'000'000ll, true), timer_source::HPET);
+	EXPECT_EQ(detect_timer_source_x86(3'700'000'000ll, 3'700'000'000ll, true), timer_source::INVARIANT_TSC);
+	EXPECT_EQ(detect_timer_source_x86(1'000'000'000ll, 3'700'000'000ll, true), timer_source::INVARIANT_TSC);
 }
 
 TEST(Timer, aggregate_construction) {
