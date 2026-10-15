@@ -379,7 +379,7 @@ namespace bench_box {
 		int regs[4] = { 0, 0, 0, 0 };
 		cpuid(1, 0, regs);
 		result.family = (regs[0] >> 8) & 0x0F;
-		result.model = ((regs[0] >> 16) & 0x0F) << 4 | ((regs[0] >> 4) & 0x0F;
+		result.model = ((regs[0] >> 16) & 0x0F) << 4 | ((regs[0] >> 4) & 0x0F);
 
 		return result;
 	}

@@ -66,7 +66,7 @@ namespace bench_box {
 	[[nodiscard, maybe_unused]] static timer_source detect_timer_source([[maybe_unused]] int64_t clock_frequency) noexcept {
 		#if defined(BENCH_BOX_ISA_X86_64) || defined(BENCH_BOX_ISA_X86)
 			const auto tsc_info = get_tsc_clock_info();
-			return detect_timer_source_x86(clock_frequency, tsc_info.tsc_frequency_hz, tsc_info.is_invariant_tsc);
+			return detect_timer_source_x86(clock_frequency, static_cast<int64_t>(tsc_info.tsc_frequency_hz), tsc_info.is_invariant_tsc);
 		#endif
 		return timer_source::UNKNOWN;
 	}
