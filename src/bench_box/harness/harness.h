@@ -125,16 +125,19 @@ namespace bench_box {
 			std::cout << "!!HARNESS!!" << std::endl;
 			std::cout << "=====" << var << " results=====" << std::endl;
 
-			constexpr auto name_fmt_str = " {:<8} |";
+			auto name_width = std::max<std::size_t>(8, var.size());
+			for (const auto& r : runs) {
+				name_width = std::max(name_width, r.name.size());
+			}
 			constexpr auto res_col_fmt_str = " {:>8}";
 			constexpr auto avg_min_max_fmt_str = " | {:>8} | {:>8}";
 
-			std::cout << std::format(name_fmt_str, var);
+			std::cout << std::format(" {:<{}} |", var, static_cast<int>(name_width));
 			for (auto i = 0u; i < num_sub_runs; i++) {
 				std::cout << std::format(res_col_fmt_str, std::format("run {}", i + 1));
 			}
 			std::cout << std::format(avg_min_max_fmt_str, "avg", "max/min") << std::endl;
-			std::cout << std::string(12 + 9 * num_sub_runs + 22, '=') << std::endl;
+			std::cout << std::string(name_width + 3 + 9 * num_sub_runs + 22, '=') << std::endl;
 			for (const auto& run : runs) {
 				double max = 0.0;
 				double min = 1e20;
@@ -169,7 +172,7 @@ namespace bench_box {
 						return "---";
 					}
 				};
-				std::cout << std::format(name_fmt_str, run.name);
+				std::cout << std::format(" {:<{}} |", run.name, static_cast<int>(name_width));
 				for (auto i = 0u; i < num_sub_runs; i++) {
 					std::cout << std::format(res_col_fmt_str, val_str_or_dash(run.sub_run_results[i]));
 				}

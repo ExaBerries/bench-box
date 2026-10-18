@@ -116,8 +116,11 @@ namespace bench_box {
 			"avx",
 			"avx2",
 			"fma",
+			"fma-apx",
 			"avx512vl",
-			"avx512f"
+			"avx512f",
+			"avx10-2-256",
+			"avx10-2-512"
 		});
 
 		[[nodiscard]] static std::string name() noexcept {
