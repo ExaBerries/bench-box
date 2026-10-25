@@ -10,6 +10,7 @@ namespace bench_box {
 	};
 
 	// call from within thread
+	void assign_thread(uint32_t os_id) noexcept;
 	void assign_thread(const threading_manager& thread_manager, uint32_t thread_id) noexcept;
 
 	[[nodiscard]] std::vector<logical_processor> create_mapping_basic() noexcept;

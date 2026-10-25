@@ -12,21 +12,24 @@
 #endif
 
 namespace bench_box {
+	void assign_thread(uint32_t os_id) noexcept {
+		#if defined(_WIN32)
+			GROUP_AFFINITY affinity = {};
+			affinity.Mask = (1ULL << os_id);
+			affinity.Group = lp.group_id;
+			SetThreadGroupAffinity(GetCurrentThread(), &affinity, nullptr);
+		#elif defined(__linux__)
+			cpu_set_t cpuset;
+			CPU_ZERO(&cpuset);
+			CPU_SET(os_id, &cpuset);
+			pthread_setaffinity_np(pthread_self(), sizeof(cpu_set_t), &cpuset);
+		#endif
+	}
 
 	void assign_thread(const threading_manager& thread_manager, uint32_t thread_id) noexcept {
 		if (thread_id < thread_manager.thread_mapping.size()) {
 			[[maybe_unused]] const auto& lp = thread_manager.thread_mapping[thread_id];
-			#if defined(_WIN32)
-				GROUP_AFFINITY affinity = {};
-				affinity.Mask = (1ULL << lp.os_id);
-				affinity.Group = lp.group_id;
-				SetThreadGroupAffinity(GetCurrentThread(), &affinity, nullptr);
-			#elif defined(__linux__)
-				cpu_set_t cpuset;
-				CPU_ZERO(&cpuset);
-				CPU_SET(lp.os_id, &cpuset);
-				pthread_setaffinity_np(pthread_self(), sizeof(cpu_set_t), &cpuset);
-			#endif
+			assign_thread(lp.os_id);
 		}
 	}
 
