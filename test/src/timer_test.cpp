@@ -91,6 +91,10 @@ TEST(Timer, classify_via_frequency) {
 	EXPECT_EQ(detect_timer_source_x86(1'193'182ll, 1'000'000'000ll, true), timer_source::PIT);
 	EXPECT_EQ(detect_timer_source_x86(32'000'000ll, 1'000'000'000ll, true), timer_source::RTC);
 	EXPECT_EQ(detect_timer_source_x86(3'579'000ll, 1'000'000'000ll, true), timer_source::ACPI_PM);
+	EXPECT_EQ(detect_timer_source_x86(3'900'000ll, 4'000'000'000ll, true), timer_source::INVARIANT_TSC);
+	EXPECT_EQ(detect_timer_source_x86(1'000'000'000ll, 3'700'000'000ll, true), timer_source::INVARIANT_TSC);
+	EXPECT_EQ(detect_timer_source_x86(3'700'000'000ll, 3'700'000'000ll, true), timer_source::INVARIANT_TSC);
+	EXPECT_EQ(detect_timer_source_x86(1'000'000'000ll, 3'700'000'000ll, true), timer_source::INVARIANT_TSC);
 	EXPECT_EQ(detect_timer_source_x86(10'000'000ll, 1'000'000'000ll, true), timer_source::INVARIANT_TSC);
 	EXPECT_EQ(detect_timer_source_x86(10'000'000ll, 1'000'000'000ll, false), timer_source::TSC);
 	EXPECT_EQ(detect_timer_source_x86(14'320'000ll, 1'000'000'000ll, true), timer_source::HPET);

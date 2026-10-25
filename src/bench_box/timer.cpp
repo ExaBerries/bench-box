@@ -42,8 +42,13 @@ namespace bench_box {
 
 		const auto INV_OR_NOT_TSC = has_invariant_tsc ? timer_source::INVARIANT_TSC : timer_source::TSC;
 
-		if (tsc_frequency_hz != 0ull && tsc_frequency_hz == clock_frequency_hz) { // if CPUID reports tsc freq, check against that
-			return INV_OR_NOT_TSC;
+		if (tsc_frequency_hz != 0ull) { // if CPUID reports tsc freq, check against that
+			if (std::abs(clock_frequency_hz - tsc_frequency_hz) < 1'000'000ll) {
+				return INV_OR_NOT_TSC;
+			}
+			if (std::abs(clock_frequency_hz - (tsc_frequency_hz / 1024ll)) < 100'000ll) { // check tsc freq / 1024 as well
+				return INV_OR_NOT_TSC;
+			}
 		}
 
 		if (clock_frequency_hz >= hpet_max_threshold) { // way too high to be hpet -> TSC

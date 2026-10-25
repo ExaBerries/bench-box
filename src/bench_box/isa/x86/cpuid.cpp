@@ -353,10 +353,7 @@ namespace bench_box {
 		}
 
 		if (result.crystal_clock_hz != 0u && tsc_ratio_numerator != 0u && tsc_ratio_denominator != 0u) {
-			auto hz = result.crystal_clock_hz * tsc_ratio_numerator / tsc_ratio_denominator;
-			if (hz >= 100'000'000ull) {
-				result.tsc_frequency_hz = hz;
-			}
+			result.tsc_frequency_hz = result.crystal_clock_hz * tsc_ratio_numerator / tsc_ratio_denominator;
 		} else {
 			result.tsc_frequency_hz = base_frequency_mhz * 1'000ull;
 		}
