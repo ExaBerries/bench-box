@@ -3,7 +3,6 @@
 #include <array>
 #include <string>
 #include <cstring>
-#include <vector>
 
 #if defined(_MSC_VER)
 	#include <intrin.h>
@@ -12,15 +11,25 @@
 #endif
 
 namespace bench_box {
-	inline void cpuid(uint32_t leaf, uint32_t subleaf, int32_t regs[4]) noexcept {
+	[[nodiscard]] cpuid_result cpuid(uint32_t leaf, uint32_t subleaf) noexcept {
+		cpuid_result result{};
 		#if defined(_MSC_VER)
-			__cpuidex(regs, leaf, subleaf);
+			__cpuidex(&result.eax, leaf, subleaf);
 		#else
-			__cpuid_count(leaf, subleaf, regs[0], regs[1], regs[2], regs[3]);
+			__cpuid_count(leaf, subleaf, result.eax, result.ebx, result.ecx, result.edx);
+		#endif
+		return result;
+	}
+
+	void cpuid(uint32_t leaf, uint32_t subleaf, cpuid_result& out) noexcept {
+		#if defined(_MSC_VER)
+			__cpuidex(&out.eax, leaf, subleaf);
+		#else
+			__cpuid_count(leaf, subleaf, out.eax, out.ebx, out.ecx, out.edx);
 		#endif
 	}
 
-	inline uint64_t xgetbv(uint32_t index) noexcept {
+	[[nodiscard]] uint64_t xgetbv(uint32_t index) noexcept {
 		#if defined(_MSC_VER)
 			return _xgetbv(index);
 		#else
@@ -33,44 +42,30 @@ namespace bench_box {
 
 
 	[[nodiscard]] std::string get_cpu_brand_string() noexcept {
-		[[maybe_unused]] std::array<int32_t, 4> cpui{};
 		std::array<char, 49> brand{};
 
-		#if defined(_MSC_VER)
-			__cpuid(cpui.data(), 0x80000000);
-			uint32_t max_ext_id = cpui[0];
+		cpuid_result r = cpuid(0x80000000, 0);
+		uint32_t max_ext_id = static_cast<uint32_t>(r.eax);
 
-			if (max_ext_id >= 0x80000004) {
-				__cpuid(reinterpret_cast<int*>(brand.data() + 0), 0x80000002);
-				__cpuid(reinterpret_cast<int*>(brand.data() + 16), 0x80000003);
-				__cpuid(reinterpret_cast<int*>(brand.data() + 32), 0x80000004);
-			}
-		#elif defined(__GNUC__) || defined(__clang__)
-			uint32_t eax = 0u;
-			uint32_t ebx = 0u;
-			uint32_t ecx = 0u;
-			uint32_t edx = 0u;
+		if (max_ext_id >= 0x80000004) {
+			r = cpuid(0x80000002, 0);
+			std::memcpy(brand.data() + 0, &r.eax, 4);
+			std::memcpy(brand.data() + 4, &r.ebx, 4);
+			std::memcpy(brand.data() + 8, &r.ecx, 4);
+			std::memcpy(brand.data() + 12, &r.edx, 4);
 
-			if (__get_cpuid_max(0x80000000, nullptr) >= 0x80000004) {
-				__get_cpuid(0x80000002, &eax, &ebx, &ecx, &edx);
-				std::memcpy(brand.data() + 0, &eax, 4);
-				std::memcpy(brand.data() + 4, &ebx, 4);
-				std::memcpy(brand.data() + 8, &ecx, 4);
-				std::memcpy(brand.data() + 12, &edx, 4);
+			r = cpuid(0x80000003, 0);
+			std::memcpy(brand.data() + 16, &r.eax, 4);
+			std::memcpy(brand.data() + 20, &r.ebx, 4);
+			std::memcpy(brand.data() + 24, &r.ecx, 4);
+			std::memcpy(brand.data() + 28, &r.edx, 4);
 
-				__get_cpuid(0x80000003, &eax, &ebx, &ecx, &edx);
-				std::memcpy(brand.data() + 16, &eax, 4);
-				std::memcpy(brand.data() + 20, &ebx, 4);
-				std::memcpy(brand.data() + 24, &ecx, 4);
-				std::memcpy(brand.data() + 28, &edx, 4);
-
-				__get_cpuid(0x80000004, &eax, &ebx, &ecx, &edx);
-				std::memcpy(brand.data() + 32, &eax, 4);
-				std::memcpy(brand.data() + 36, &ebx, 4);
-				std::memcpy(brand.data() + 40, &ecx, 4);
-				std::memcpy(brand.data() + 44, &edx, 4);
-			}
-		#endif
+			r = cpuid(0x80000004, 0);
+			std::memcpy(brand.data() + 32, &r.eax, 4);
+			std::memcpy(brand.data() + 36, &r.ebx, 4);
+			std::memcpy(brand.data() + 40, &r.ecx, 4);
+			std::memcpy(brand.data() + 44, &r.edx, 4);
+		}
 
 		brand[48] = '\0';
 		return std::string(brand.data());
@@ -79,17 +74,16 @@ namespace bench_box {
 
 	[[nodiscard]] x86_extensions get_cpu_supported_isas() noexcept {
 		x86_extensions result{};
-		int32_t r[4];
 
-		cpuid(0, 0, r);
-		auto max_basic = r[0];
+		cpuid_result r = cpuid(0, 0);
+		auto max_basic = r.eax;
 
-		cpuid(0x80000000, 0, r);
-		auto max_ext = r[0];
+		r = cpuid(0x80000000, 0);
+		auto max_ext = r.eax;
 
-		cpuid(1, 0, r);
-		auto ecx = r[2];
-		auto edx = r[3];
+		r = cpuid(1, 0);
+		auto ecx = r.ecx;
+		auto edx = r.edx;
 
 		result.mmx = (edx & (1 << 23));
 		result.sse = (edx & (1 << 25));
@@ -119,10 +113,10 @@ namespace bench_box {
 		}
 
 		if (max_basic >= 7) {
-			cpuid(7, 0, r);
-			auto ebx = r[1];
-			auto ecx7 = r[2];
-			auto edx7 = r[3];
+			r = cpuid(7, 0);
+			auto ebx = r.ebx;
+			auto ecx7 = r.ecx;
+			auto edx7 = r.edx;
 
 			result.bmi1 = (ebx & (1 << 3));
 			result.bmi2 = (ebx & (1 << 8));
@@ -170,10 +164,10 @@ namespace bench_box {
 			result.hreset = (edx7 & (1 << 22));
 			result.uintr = (edx7 & (1 << 5));
 
-			cpuid(7, 1, r);
-			auto eax1 = r[0];
-			auto ecx1 = r[2];
-			auto edx1 = r[3];
+			r = cpuid(7, 1);
+			auto eax1 = r.eax;
+			auto ecx1 = r.ecx;
+			auto edx1 = r.edx;
 
 			result.avx512_bf16 = ((eax1 & (1 << 5)) && avx512_os_enabled);
 			result.avx512_fp16 = ((eax1 & (1 << 23)) && avx512_os_enabled);
@@ -184,9 +178,9 @@ namespace bench_box {
 			result.apx = (edx1 & (1 << 21));
 
 			if (result.avx10 && max_basic >= 0x24) {
-				cpuid(0x24, 0, r);
-				result.avx10_version = (r[1] & 0xFF);
-				auto ebx24 = r[1];
+				r = cpuid(0x24, 0);
+				result.avx10_version = (r.ebx & 0xFF);
+				auto ebx24 = r.ebx;
 				if (ebx24 & (1 << 18)) {
 					result.avx10_vector_length = avx10_vector_length_t::AVX_10_512;
 				} else if (ebx24 & (1 << 17)) {
@@ -200,9 +194,9 @@ namespace bench_box {
 		}
 
 		if (max_ext >= static_cast<int32_t>(0x80000001)) {
-			cpuid(0x80000001, 0, r);
-			auto ecx8 = r[2];
-			auto edx8 = r[3];
+			r = cpuid(0x80000001, 0);
+			auto ecx8 = r.ecx;
+			auto edx8 = r.edx;
 
 			result.lm = (edx8 & (1 << 29));
 			result.lzcnt = (ecx8 & (1 << 5));
@@ -322,13 +316,12 @@ namespace bench_box {
 
 	[[nodiscard]] tsc_clock_info get_tsc_clock_info() noexcept {
 		tsc_clock_info result{};
-		int32_t r[4];
 
-		cpuid(0x80000007, 0, r);
-		result.is_invariant_tsc = (r[3] & (1 << 8)) != 0;
+		cpuid_result r = cpuid(0x80000007, 0);
+		result.is_invariant_tsc = (r.edx & (1 << 8)) != 0;
 
-		cpuid(0, 0, r);
-		const auto max_basic = r[0];
+		r = cpuid(0, 0);
+		const auto max_basic = r.eax;
 
 		uint64_t tsc_ratio_denominator = 0u;
 		uint64_t tsc_ratio_numerator = 0u;
@@ -339,17 +332,17 @@ namespace bench_box {
 		[[maybe_unused]] uint64_t bus_frequency_mhz = 0u;
 
 		if (max_basic >= 0x15) {
-			cpuid(0x15, 0, r);
-			tsc_ratio_denominator = static_cast<uint64_t>(r[0]);
-			tsc_ratio_numerator = static_cast<uint64_t>(r[1]);
-			result.crystal_clock_hz = static_cast<uint64_t>(r[2]);
+			r = cpuid(0x15, 0);
+			tsc_ratio_denominator = static_cast<uint64_t>(r.eax);
+			tsc_ratio_numerator = static_cast<uint64_t>(r.ebx);
+			result.crystal_clock_hz = static_cast<uint64_t>(r.ecx);
 		}
 
 		if (max_basic >= 0x16) {
-			cpuid(0x16, 0, r);
-			base_frequency_mhz = static_cast<uint64_t>(r[0] & 0xFFFF);
-			max_frequency_mhz = static_cast<uint64_t>(r[1] & 0xFFFF);
-			bus_frequency_mhz = static_cast<uint64_t>(r[2] & 0xFFFF);
+			r = cpuid(0x16, 0);
+			base_frequency_mhz = static_cast<uint64_t>(r.eax & 0xFFFF);
+			max_frequency_mhz = static_cast<uint64_t>(r.ebx & 0xFFFF);
+			bus_frequency_mhz = static_cast<uint64_t>(r.ecx & 0xFFFF);
 		}
 
 		if (result.crystal_clock_hz != 0u && tsc_ratio_numerator != 0u && tsc_ratio_denominator != 0u) {
@@ -373,10 +366,9 @@ namespace bench_box {
 			result.vendor = cpu_brand_info::OTHER;
 		}
 
-		int regs[4] = { 0, 0, 0, 0 };
-		cpuid(1, 0, regs);
-		result.family = (regs[0] >> 8) & 0x0F;
-		result.model = ((regs[0] >> 16) & 0x0F) << 4 | ((regs[0] >> 4) & 0x0F);
+		cpuid_result r = cpuid(1, 0);
+		result.family = (r.eax >> 8) & 0x0F;
+		result.model = ((r.eax >> 16) & 0x0F) << 4 | ((r.eax >> 4) & 0x0F);
 
 		return result;
 	}

@@ -6,6 +6,13 @@
 #include <array>
 
 namespace bench_box {
+	struct cpuid_result {
+		int32_t eax;
+		int32_t ebx;
+		int32_t ecx;
+		int32_t edx;
+	};
+
 	enum struct avx10_vector_length_t {
 		AVX_10_LENGTH_UNKNOWN,
 		AVX_10_128,
@@ -106,5 +113,9 @@ namespace bench_box {
 	[[nodiscard]] std::string get_cpu_isa_string() noexcept;
 	[[nodiscard]] tsc_clock_info get_tsc_clock_info() noexcept;
 	[[nodiscard]] cpu_brand_info get_cpu_brand_info() noexcept;
+
+	[[nodiscard]] cpuid_result cpuid(uint32_t leaf, uint32_t subleaf) noexcept;
+	void cpuid(uint32_t leaf, uint32_t subleaf, cpuid_result& out) noexcept;
+	[[nodiscard]] uint64_t xgetbv(uint32_t index) noexcept;
 } // namespace bench_box
 #endif
