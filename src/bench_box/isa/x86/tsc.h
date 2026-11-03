@@ -7,19 +7,11 @@
 
 namespace bench_box {
 	[[nodiscard]] inline uint64_t read_tsc() noexcept {
-		#if defined(_MSC_VER)
-			return _rdtsc();
-		#else
-			return __rdtsc();
-		#endif
+		return __rdtsc();
 	}
 
 	[[nodiscard]] inline uint64_t read_tscp() noexcept {
-		#if defined(_MSC_VER)
-			return _rdtscp(nullptr);
-		#else
-			return __rdtscp(nullptr);
-		#endif
+		return __rdtscp(nullptr);
 	}
 
 	[[nodiscard]] inline uint64_t fence_rdtsc() noexcept {
