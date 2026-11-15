@@ -96,6 +96,11 @@ namespace bench_box {
 			AMD,
 			OTHER
 		} vendor = INTEL;
+		int32_t base_family = 0;
+		int32_t extended_family = 0;
+		int32_t base_model = 0;
+		int32_t extended_model = 0;
+		int32_t stepping = 0;
 		int32_t family = 0;
 		int32_t model = 0;
 	};

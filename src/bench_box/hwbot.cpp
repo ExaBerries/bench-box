@@ -20,7 +20,7 @@ namespace bench_box {
 				return true;
 			}
 			if (cpu_info.vendor == cpu_brand_info::INTEL) {
-				if (cpu_info.model >= INTEL_SKYLAKE_MOBILE_MODEL && cpu_info.model != INTEL_BROADWELL_E_MODEL) {
+				if (is_intel_skylake_or_newer(cpu_info.family, cpu_info.model)) {
 					return true;
 				}
 			}

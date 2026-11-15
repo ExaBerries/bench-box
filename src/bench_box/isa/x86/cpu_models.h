@@ -4,6 +4,9 @@
 #include <cstdint>
 
 namespace bench_box {
+	inline constexpr int32_t INTEL_FAMILY_6 = 0x06; // Core
+	inline constexpr int32_t INTEL_FAMILY_18 = 0x12; // Nova Lake and newer
+
 	// Intel Core (family 6) model IDs for quick uarch identification.
 	inline constexpr int32_t INTEL_CORE2_MEROM_MODEL = 0x0F; // Merom/Conroe
 	inline constexpr int32_t INTEL_CORE2_PENRYN_MODEL = 0x17; // Penryn/Wolfdale
@@ -49,10 +52,21 @@ namespace bench_box {
 	inline constexpr int32_t INTEL_ALDER_LAKE_DESKTOP_MODEL = 0x97; // Alder Lake (desktop)
 	inline constexpr int32_t INTEL_ALDER_LAKE_MOBILE_MODEL = 0x9A; // Alder Lake (mobile)
 
+	// Intel family 18 model IDs.
+	inline constexpr int32_t INTEL_NOVALAKE_MODEL = 0x01; // Nova Lake
+	inline constexpr int32_t INTEL_NOVALAKE_L_MODEL = 0x03; // Nova Lake-L
+
 	// AMD Zen family/model samples (family 17h/19h).
 	inline constexpr int32_t AMD_ZEN_MODEL = 0x01; // Zen
 	inline constexpr int32_t AMD_ZEN_PLUS_MODEL = 0x08; // Zen+
 	inline constexpr int32_t AMD_ZEN2_MODEL = 0x31; // Zen 2
 	inline constexpr int32_t AMD_ZEN3_MODEL = 0x21; // Zen 3
 	inline constexpr int32_t AMD_ZEN4_MODEL = 0x61; // Zen 4
+
+	[[nodiscard]] inline constexpr bool is_intel_skylake_or_newer(int32_t family, int32_t model) noexcept {
+		if (family >= INTEL_FAMILY_18) {
+			return true;
+		}
+		return family == INTEL_FAMILY_6 && model >= INTEL_SKYLAKE_MOBILE_MODEL && model != INTEL_BROADWELL_E_MODEL;
+	}
 } // namespace bench_box

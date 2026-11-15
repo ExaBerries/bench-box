@@ -341,8 +341,13 @@ namespace bench_box {
 		}
 
 		cpuid_result r = cpuid(1, 0);
-		result.family = (r.eax >> 8) & 0x0F;
-		result.model = ((r.eax >> 16) & 0x0F) << 4 | ((r.eax >> 4) & 0x0F);
+		result.base_family = (r.eax >> 8) & 0x0F;
+		result.extended_family = (r.eax >> 20) & 0xFF;
+		result.base_model = (r.eax >> 4) & 0x0F;
+		result.extended_model = (r.eax >> 16) & 0x0F;
+		result.stepping = r.eax & 0x0F;
+		result.family = (result.base_family == 0x0F) ? result.base_family + result.extended_family : result.base_family;
+		result.model = (result.extended_model << 4) | result.base_model;
 
 		return result;
 	}

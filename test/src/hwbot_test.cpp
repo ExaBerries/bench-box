@@ -18,6 +18,7 @@ TEST(Hwbot, PreWindows8AlwaysCompliant) {
 TEST(Hwbot, IntelSkylakeExempt) {
 	cpu_brand_info cpu{};
 	cpu.vendor = cpu_brand_info::INTEL;
+	cpu.family = INTEL_FAMILY_6;
 	cpu.model = INTEL_SKYLAKE_MOBILE_MODEL;
 	EXPECT_TRUE(is_hwbot_compliant_x86(false, cpu, true));
 	EXPECT_TRUE(is_hwbot_compliant_x86(true, cpu, true));
@@ -26,7 +27,35 @@ TEST(Hwbot, IntelSkylakeExempt) {
 TEST(Hwbot, IntelNewerExempt) {
 	cpu_brand_info cpu{};
 	cpu.vendor = cpu_brand_info::INTEL;
+	cpu.family = INTEL_FAMILY_6;
 	cpu.model = INTEL_ALDER_LAKE_DESKTOP_MODEL;
+	EXPECT_TRUE(is_hwbot_compliant_x86(false, cpu, true));
+	EXPECT_TRUE(is_hwbot_compliant_x86(true, cpu, true));
+}
+
+TEST(Hwbot, IntelNovaLakeExempt) {
+	cpu_brand_info cpu{};
+	cpu.vendor = cpu_brand_info::INTEL;
+	cpu.family = INTEL_FAMILY_18;
+	cpu.model = INTEL_NOVALAKE_MODEL;
+	EXPECT_TRUE(is_hwbot_compliant_x86(false, cpu, true));
+	EXPECT_TRUE(is_hwbot_compliant_x86(true, cpu, true));
+}
+
+TEST(Hwbot, IntelNovaLakeLExempt) {
+	cpu_brand_info cpu{};
+	cpu.vendor = cpu_brand_info::INTEL;
+	cpu.family = INTEL_FAMILY_18;
+	cpu.model = INTEL_NOVALAKE_L_MODEL;
+	EXPECT_TRUE(is_hwbot_compliant_x86(false, cpu, true));
+	EXPECT_TRUE(is_hwbot_compliant_x86(true, cpu, true));
+}
+
+TEST(Hwbot, IntelFutureFamilyExempt) {
+	cpu_brand_info cpu{};
+	cpu.vendor = cpu_brand_info::INTEL;
+	cpu.family = INTEL_FAMILY_18 + 1;
+	cpu.model = 0;
 	EXPECT_TRUE(is_hwbot_compliant_x86(false, cpu, true));
 	EXPECT_TRUE(is_hwbot_compliant_x86(true, cpu, true));
 }
@@ -34,6 +63,7 @@ TEST(Hwbot, IntelNewerExempt) {
 TEST(Hwbot, OlderRequiresHpet) {
 	cpu_brand_info cpu{};
 	cpu.vendor = cpu_brand_info::INTEL;
+	cpu.family = INTEL_FAMILY_6;
 	cpu.model = INTEL_SANDY_BRIDGE_E_MODEL;
 	EXPECT_FALSE(is_hwbot_compliant_x86(false, cpu, true));
 	EXPECT_TRUE(is_hwbot_compliant_x86(true, cpu, true));
