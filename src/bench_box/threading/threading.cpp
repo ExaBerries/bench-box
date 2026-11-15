@@ -12,7 +12,7 @@
 #endif
 
 namespace bench_box {
-	void assign_thread(uint32_t os_id, [[maybe_unused]] uint32_t group_id) noexcept {
+	void assign_thread([[maybe_unused]] uint32_t os_id, [[maybe_unused]] uint32_t group_id) noexcept {
 		#if defined(_WIN32)
 			GROUP_AFFINITY affinity = {};
 			affinity.Mask = (1ULL << os_id);
