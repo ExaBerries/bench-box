@@ -180,16 +180,6 @@ namespace bench_box {
 			if (result.avx10 && max_basic >= 0x24) {
 				r = cpuid(0x24, 0);
 				result.avx10_version = (r.ebx & 0xFF);
-				auto ebx24 = r.ebx;
-				if (ebx24 & (1 << 18)) {
-					result.avx10_vector_length = avx10_vector_length_t::AVX_10_512;
-				} else if (ebx24 & (1 << 17)) {
-					result.avx10_vector_length = avx10_vector_length_t::AVX_10_256;
-				} else if (ebx24 & (1 << 16)) {
-					result.avx10_vector_length = avx10_vector_length_t::AVX_10_128;
-				} else {
-					result.avx10_vector_length = avx10_vector_length_t::AVX_10_LENGTH_UNKNOWN;
-				}
 			}
 		}
 
@@ -247,22 +237,6 @@ namespace bench_box {
 				result += '.';
 				result += std::to_string(ext.avx10_version);
 			}
-			switch (ext.avx10_vector_length) {
-				case avx10_vector_length_t::AVX_10_LENGTH_UNKNOWN:
-					break;
-				case avx10_vector_length_t::AVX_10_128:
-					result += '-';
-					result += "128";
-					break;
-				case avx10_vector_length_t::AVX_10_256:
-					result += '-';
-					result += "256";
-					break;
-				case avx10_vector_length_t::AVX_10_512:
-					result += '-';
-					result += "512";
-					break;
-			};
 		} else {
 			append(ext.avx512f, "AVX512F");
 			append(ext.avx512bw, "AVX512BW");

@@ -13,13 +13,6 @@ namespace bench_box {
 		int32_t edx;
 	};
 
-	enum struct avx10_vector_length_t {
-		AVX_10_LENGTH_UNKNOWN,
-		AVX_10_128,
-		AVX_10_256,
-		AVX_10_512
-	};
-
 	struct x86_extensions {
 		bool mmx = false;
 		bool sse = false;
@@ -86,7 +79,6 @@ namespace bench_box {
 		bool avx512_fp16 = false;
 		bool avx10 = false;
 		uint32_t avx10_version = 0u;
-		avx10_vector_length_t avx10_vector_length = avx10_vector_length_t::AVX_10_LENGTH_UNKNOWN;
 		bool apx = false;
 	};
 
