@@ -1,4 +1,6 @@
 #pragma once
+#include <bench_box/math/mat4.h>
+#include <bench_box/math/quat.h>
 #include <bench_box/math/vec2.h>
 #include <bench_box/math/vec3.h>
 #include <bench_box/math/vec_convert.h>
