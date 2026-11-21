@@ -1,5 +1,7 @@
 #pragma once
-#include <bench_box/math/vec3d.h>
+#include <bench_box/math/vec2.h>
+#include <bench_box/math/vec3.h>
+#include <bench_box/math/vec_convert.h>
 #include <limits>
 #include <optional>
 
@@ -33,5 +35,5 @@ namespace bench_box {
 			}
 			return a + b;
 		}
-	} // namespace math	
+	} // namespace math
 } // namespace bench_box
