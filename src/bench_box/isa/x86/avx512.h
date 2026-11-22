@@ -2,6 +2,14 @@
 #if defined(__AVX512F__)
 
 #define BENCH_BOX_SIMD_REG8D
+#define BENCH_BOX_SIMD_REG8I64
+#define BENCH_BOX_SIMD_REG16F
+#define BENCH_BOX_SIMD_REG16I32
+#define BENCH_BOX_SIMD_REG64I8
+#define BENCH_BOX_SIMD_REG32I16
+
+#include <cstdint>
+#include <immintrin.h>
 
 namespace bench_box {
 	namespace simd {
@@ -9,45 +17,27 @@ namespace bench_box {
 		using reg8i64 = __m512i;
 		using mask8 = __mmask8;
 
-		enum reg_loc {
-			LOWER,
-			UPPER
-		};
+		using reg16f = __m512;
+		using reg16i32 = __m512i;
+		using mask16 = __mmask16;
 
-		template <int64_t m0, int64_t m1, int64_t m2, int64_t m3, int64_t m4, int64_t m5, int64_t m6, int64_t m7>
-		[[gnu::always_inline, nodiscard]] inline reg8i64 create_mask_8i64() noexcept;
-
-		[[gnu::always_inline, nodiscard]] inline reg8d zero_reg8d() noexcept;
-
-		[[gnu::always_inline, nodiscard]] inline reg8d load8d8d(const double& data) noexcept;
-		[[gnu::always_inline, nodiscard]] inline reg8d load4d8d_both(const double& data) noexcept;
-		[[gnu::always_inline, nodiscard]] inline reg8d load4d8d_lower(const double& data) noexcept;
-		[[gnu::always_inline, nodiscard]] inline reg8d load1d8d(const double& value) noexcept;
-
-		[[gnu::always_inline]] inline void store8d(double& out, const reg8d& reg) noexcept;
-
-		[[gnu::always_inline, nodiscard]] inline reg8d reg4d8d(const reg4d& a) noexcept;
-		[[gnu::always_inline, nodiscard]] inline reg8d reg4d8d(const reg4d& a, const reg4d& b) noexcept;
-		[[gnu::always_inline, nodiscard]] inline reg4d reg8d4d(const reg8d& a) noexcept;
-
-		[[gnu::always_inline, nodiscard]] inline reg8d add8d(const reg8d& a, const reg8d& b) noexcept;
-		[[gnu::always_inline, nodiscard]] inline reg8d sub8d(const reg8d& a, const reg8d& b) noexcept;
-		[[gnu::always_inline, nodiscard]] inline reg8d mul8d(const reg8d& a, const reg8d& b) noexcept;
-		[[gnu::always_inline, nodiscard]] inline reg8d div8d(const reg8d& a, const reg8d& b) noexcept;
-
-		[[gnu::always_inline, nodiscard]] inline reg8d fmadd8d(const reg8d& a, const reg8d& b, const reg8d& c) noexcept;
-		[[gnu::always_inline, nodiscard]] inline reg8d fmsub8d(const reg8d& a, const reg8d& b, const reg8d& c) noexcept;
-		[[gnu::always_inline, nodiscard]] inline reg8d fmnadd8d(const reg8d& a, const reg8d& b, const reg8d& c) noexcept;
-		[[gnu::always_inline, nodiscard]] inline reg8d fmnsub8d(const reg8d& a, const reg8d& b, const reg8d& c) noexcept;
-		[[gnu::always_inline, nodiscard]] inline reg8d fmnadd8dmask3(const reg8d& a, const reg8d& b, const reg8d& c, const mask8& m) noexcept;
-
-		[[gnu::always_inline, nodiscard]] inline reg8d blend8dmask(const reg8d& a, const reg8d& b, const mask8& mask) noexcept;
-
-		[[gnu::always_inline, nodiscard]] inline reg8d permutexvar8d(const reg8d& a, const reg8i64& mask) noexcept;
-		[[gnu::always_inline, nodiscard]] inline reg8d permutex2var8d(const reg8d& a, const reg8d& b, const reg8i64& idx) noexcept;
+		using reg64i8 = __m512i;
+		using reg32i16 = __m512i;
+		using mask64 = __mmask64;
+		using mask32 = __mmask32;
 	} // namespace simd
 } // namespace bench_box
 
-#include "avx512Impl.h"
+#include "avx512_f64.h"
+#include "avx512_f32.h"
+#include "avx512_i64.h"
+#include "avx512_i32.h"
+#include "avx512_dq.h"
+#include "avx512_vnni.h"
+#include "avx512_bw.h"
+#include "avx512_vbmi.h"
+#include "avx512_vbmi2.h"
+#include "avx512_vpopcntdq.h"
+#include "avx512_bitalg.h"
 
 #endif

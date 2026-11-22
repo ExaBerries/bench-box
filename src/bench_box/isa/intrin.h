@@ -12,13 +12,8 @@
 
 #if defined(BENCH_BOX_ISA_X86) || defined(BENCH_BOX_ISA_X86_64)
 	#include <immintrin.h>
-	#include <bench_box/isa/x86/misc.h>
 
 	#if defined(__AVX__)
-		#include <xmmintrin.h>
-
-		#include <bench_box/isa/x86/misc.h>
-
 		#include <bench_box/isa/x86/avx.h>
 
 		#if defined(__AVX2__)
@@ -28,5 +23,10 @@
 		#if defined(__AVX512F__)
 			#include <bench_box/isa/x86/avx512.h>
 		#endif
+
+		#include <bench_box/isa/x86/avx512_vl.h>
+		#include <bench_box/isa/x86/avx512_vl_dq.h>
 	#endif
+
+	#include <bench_box/isa/x86/misc.h>
 #endif

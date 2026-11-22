@@ -2,27 +2,29 @@
 #if defined(__AVX__)
 
 #define BENCH_BOX_SIMD_REG2D
+#define BENCH_BOX_SIMD_REG4F
+#define BENCH_BOX_SIMD_REG8F
+#define BENCH_BOX_SIMD_REG4I32
+#define BENCH_BOX_SIMD_REG2I64
 
 #include <cstdint>
+#include <immintrin.h>
 
 namespace bench_box {
 	namespace simd {
 		using reg2d = __m128d;
 
-		[[gnu::always_inline, nodiscard]] inline reg2d load2d2d(const double& data) noexcept;
-		[[gnu::always_inline, nodiscard]] inline reg2d load1d2d(const double& value) noexcept;
-		[[gnu::always_inline, nodiscard]] inline reg2d load1d2d_lo(const double& value) noexcept;
+		using reg4f = __m128;
+		using reg8f = __m256;
 
-		[[gnu::always_inline]] inline void store2d(double& out, const reg2d& reg) noexcept;
-		[[gnu::always_inline]] inline void store2d_lo(double& out, const reg2d& reg) noexcept;
-
-		[[gnu::always_inline, nodiscard]] inline reg2d add2d(const reg2d& a, const reg2d& b) noexcept;
-		[[gnu::always_inline, nodiscard]] inline reg2d sub2d(const reg2d& a, const reg2d& b) noexcept;
-		[[gnu::always_inline, nodiscard]] inline reg2d mul2d(const reg2d& a, const reg2d& b) noexcept;
-		[[gnu::always_inline, nodiscard]] inline reg2d div2d(const reg2d& a, const reg2d& b) noexcept;
+		using reg4i32 = __m128i;
+		using reg2i64 = __m128i;
 	} // namespace simd
 } // namespace bench_box
 
-#include "avxImpl.h"
+#include "avx_f64.h"
+#include "avx_f32.h"
+#include "avx_i32.h"
+#include "avx_i64.h"
 
 #endif

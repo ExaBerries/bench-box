@@ -23,8 +23,13 @@ static_assert(!square_root_api<bench_box::math::vec2li>);
 
 TEST(Vec2F, Layout) {
 	using vec2f = bench_box::math::vec2f;
+#if defined(BENCH_BOX_SIMD_REG4F)
+	static_assert(sizeof(vec2f) == 16);
+	static_assert(alignof(vec2f) == 16);
+#else
 	static_assert(sizeof(vec2f) == 8);
-	static_assert(alignof(vec2f) == 8);
+	static_assert(alignof(vec2f) == alignof(float));
+#endif
 }
 
 TEST(Vec2F, Arithmetic) {
@@ -94,8 +99,13 @@ TEST(Vec2F, Geometry) {
 
 TEST(Vec2D, Layout) {
 	using vec2d = bench_box::math::vec2d;
+#if defined(BENCH_BOX_SIMD_REG2D)
 	static_assert(sizeof(vec2d) == 16);
 	static_assert(alignof(vec2d) == 16);
+#else
+	static_assert(sizeof(vec2d) == 16);
+	static_assert(alignof(vec2d) == alignof(double));
+#endif
 }
 
 TEST(Vec2D, Arithmetic) {
@@ -165,8 +175,13 @@ TEST(Vec2D, Geometry) {
 
 TEST(Vec2I, Layout) {
 	using vec2i = bench_box::math::vec2i;
+#if defined(BENCH_BOX_SIMD_REG4I32)
+	static_assert(sizeof(vec2i) == 16);
+	static_assert(alignof(vec2i) == 16);
+#else
 	static_assert(sizeof(vec2i) == 8);
-	static_assert(alignof(vec2i) == 8);
+	static_assert(alignof(vec2i) == alignof(std::int32_t));
+#endif
 }
 
 TEST(Vec2I, Arithmetic) {
@@ -221,8 +236,13 @@ TEST(Vec2I, Geometry) {
 
 TEST(Vec2LI, Layout) {
 	using vec2li = bench_box::math::vec2li;
+#if defined(BENCH_BOX_SIMD_REG2I64)
 	static_assert(sizeof(vec2li) == 16);
 	static_assert(alignof(vec2li) == 16);
+#else
+	static_assert(sizeof(vec2li) == 16);
+	static_assert(alignof(vec2li) == alignof(std::int64_t));
+#endif
 }
 
 TEST(Vec2LI, Arithmetic) {

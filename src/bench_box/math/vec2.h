@@ -1,4 +1,5 @@
 #pragma once
+#include <bench_box/isa/intrin.h>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
@@ -16,7 +17,30 @@
 
 namespace bench_box {
 	namespace math {
-		template <typename T, std::size_t A = 2 * sizeof(T), typename = void>
+		template <typename T>
+		inline constexpr std::size_t vec2_alignment = alignof(T);
+
+#if defined(BENCH_BOX_SIMD_REG2D)
+		template <>
+		inline constexpr std::size_t vec2_alignment<double> = alignof(simd::reg2d);
+#endif
+
+#if defined(BENCH_BOX_SIMD_REG4F)
+		template <>
+		inline constexpr std::size_t vec2_alignment<float> = alignof(simd::reg4f);
+#endif
+
+#if defined(BENCH_BOX_SIMD_REG4I32)
+		template <>
+		inline constexpr std::size_t vec2_alignment<std::int32_t> = alignof(simd::reg4i32);
+#endif
+
+#if defined(BENCH_BOX_SIMD_REG2I64)
+		template <>
+		inline constexpr std::size_t vec2_alignment<std::int64_t> = alignof(simd::reg2i64);
+#endif
+
+		template <typename T, std::size_t A = vec2_alignment<T>, typename = void>
 		struct alignas(A) vec2;
 
 		template <typename T, std::size_t A>

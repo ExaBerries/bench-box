@@ -17,7 +17,30 @@
 
 namespace bench_box {
 	namespace math {
-		template <typename T, std::size_t A = 4 * sizeof(T), typename = void>
+		template <typename T>
+		inline constexpr std::size_t vec3_alignment = alignof(T);
+
+#if defined(BENCH_BOX_SIMD_REG4D)
+		template <>
+		inline constexpr std::size_t vec3_alignment<double> = alignof(simd::reg4d);
+#endif
+
+#if defined(BENCH_BOX_SIMD_REG4F)
+		template <>
+		inline constexpr std::size_t vec3_alignment<float> = alignof(simd::reg4f);
+#endif
+
+#if defined(BENCH_BOX_SIMD_REG4I32)
+		template <>
+		inline constexpr std::size_t vec3_alignment<std::int32_t> = alignof(simd::reg4i32);
+#endif
+
+#if defined(BENCH_BOX_SIMD_REG4I64)
+		template <>
+		inline constexpr std::size_t vec3_alignment<std::int64_t> = alignof(simd::reg4i64);
+#endif
+
+		template <typename T, std::size_t A = vec3_alignment<T>, typename = void>
 		struct alignas(A) vec3;
 
 		template <typename T, std::size_t A>
@@ -27,10 +50,6 @@ namespace bench_box {
 			T x = 0;
 			T y = 0;
 			T z = 0;
-
-			private:
-			[[maybe_unused]] T padding = 0;
-			public:
 
 			vec3() = default;
 			constexpr vec3(T scalar) noexcept;
@@ -72,10 +91,6 @@ namespace bench_box {
 			T x = 0;
 			T y = 0;
 			T z = 0;
-
-			private:
-			[[maybe_unused]] T padding = 0;
-			public:
 
 			vec3() = default;
 			constexpr vec3(T scalar) noexcept;
