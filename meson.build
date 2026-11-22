@@ -108,6 +108,7 @@ test_exe = executable(
 		'test/src/mat4_test.cpp',
 		'test/src/parse_test.cpp',
 		'test/src/quat_test.cpp',
+		'test/src/simd_i64_test.cpp',
 		'test/src/timer_test.cpp',
 		'test/src/vec2_test.cpp',
 		'test/src/vec3_test.cpp',

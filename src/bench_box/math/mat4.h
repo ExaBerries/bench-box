@@ -22,6 +22,8 @@ namespace bench_box {
 
 		template <typename T, std::size_t A>
 		struct alignas(A) mat4<T, A, std::enable_if_t<std::is_floating_point<T>::value>> {
+			static_assert(A >= 64, "mat4 needs an alignment of at least 64 bytes for the simd loads");
+
 			using element_t = T;
 
 			T values[16] = {

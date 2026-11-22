@@ -30,14 +30,14 @@ namespace bench_box {
 		template <typename T, std::size_t A>
 		constexpr T vec3<T, A, std::enable_if_t<std::is_floating_point<T>::value>>::mag2() const noexcept {
 		#if defined(BENCH_BOX_SIMD_USE_INTRIN_FMA)
-			if constexpr (std::is_same<T, double>::value) {
+			if constexpr (std::is_same_v<T, double>) {
 				if (!std::is_constant_evaluated()) {
 					simd::reg2d rx = simd::load1d2d_lo(x);
 					simd::reg2d ry = simd::load1d2d_lo(y);
 					simd::reg2d rz = simd::load1d2d_lo(z);
 					simd::reg2d i = simd::mul2d(ry, ry);
-					i = simd::fmadd2d(rx, rx, i);
-					i = simd::fmadd2d(rz, rz, i);
+					i = simd::fmadd2d_lo(rx, rx, i);
+					i = simd::fmadd2d_lo(rz, rz, i);
 					double out = 0;
 					simd::store2d_lo(out, i);
 					return static_cast<T>(out);
@@ -152,7 +152,8 @@ namespace bench_box {
 		inline vec3d& vec3d::nor() noexcept {
 			const double length2 = mag2();
 			if (length2 != 0.0 && length2 != 1.0) {
-			#if defined(BENCH_BOX_SIMD_REG4D)
+			#if defined(BENCH_BOX_SIMD_USE_INTRIN_FMA)
+				static_assert(alignof(vec3d) >= alignof(simd::reg4d), "vec3d must be aligned for SIMD loads");
 				simd::store4d(x, simd::div4d(simd::load4d4d(x), simd::load1d4d(std::sqrt(length2))));
 			#else
 				const double length = std::sqrt(length2);

@@ -8,6 +8,7 @@
 #define BENCH_BOX_SIMD_REG64I8
 #define BENCH_BOX_SIMD_REG32I16
 
+#include <bench_box/isa/isa_macro.h>
 #include <cstdint>
 #include <immintrin.h>
 

@@ -135,6 +135,9 @@ TEST(Mat4F, Multiply) {
 	mat4f compound{a};
 	compound *= b;
 	EXPECT_TRUE((compound == a * b));
+
+	EXPECT_TRUE(((a * vec3f{1.0f, 1.0f, 1.0f}) == vec3f{10.0f, 8.0f, 5.0f}));
+	EXPECT_TRUE(((vec3f{1.0f, 1.0f, 1.0f} * a) == vec3f{7.0f, 0.0f, 14.0f}));
 }
 
 TEST(Mat4F, Determinant) {
@@ -431,7 +434,10 @@ TEST(Mat4D, Transform) {
 		4.0, 0.0, 0.0, 1.0
 	};
 	static_assert((a * vec3d{1.0, 1.0, 1.0}) == vec3d{12.0, 8.0, 5.0});
-	static_assert((vec3d{1.0, 1.0, 1.0} * a) == vec3d{12.0, 8.0, 5.0});
+	// Row-vector multiply uses the columns of the same stored matrix.
+	static_assert((vec3d{1.0, 1.0, 1.0} * a) == vec3d{7.0, 0.0, 14.0});
+	EXPECT_TRUE(((a * vec3d{1.0, 1.0, 1.0}) == vec3d{12.0, 8.0, 5.0}));
+	EXPECT_TRUE(((vec3d{1.0, 1.0, 1.0} * a) == vec3d{7.0, 0.0, 14.0}));
 
 	constexpr mat4d b{
 		2.0, 0.0, 0.0, 1.0,

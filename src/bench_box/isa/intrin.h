@@ -2,12 +2,19 @@
 
 #include <bench_box/isa/isa_macro.h>
 
-#if defined(BENCH_BOX_SIMD_USE_INTRIN_AVX512F)
-#define BENCH_BOX_SIMD_USE_INTRIN_STR "intrin-avx512f"
-#elif defined(BENCH_BOX_SIMD_USE_INTRIN_AVX512VL)
-#define BENCH_BOX_SIMD_USE_INTRIN_STR "intrin-avx512vl"
-#elif defined(BENCH_BOX_SIMD_USE_INTRIN_FMA)
-#define BENCH_BOX_SIMD_USE_INTRIN_STR "intrin-fma"
+#if defined(BENCH_BOX_SIMD_USE_INTRIN_FMA)
+	#if !defined(__AVX2__)
+		#error "BENCH_BOX_SIMD_USE_INTRIN_FMA requires AVX2"
+	#endif
+	#if !defined(__FMA__) && !defined(_MSC_VER)
+		#error "BENCH_BOX_SIMD_USE_INTRIN_FMA requires FMA"
+	#endif
+#endif
+
+#if defined(BENCH_BOX_SIMD_USE_AVX512VL)
+	#if !defined(__AVX512F__) || !defined(__AVX512VL__)
+		#error "BENCH_BOX_SIMD_USE_AVX512VL requires AVX512F and AVX512VL"
+	#endif
 #endif
 
 #if defined(BENCH_BOX_ISA_X86) || defined(BENCH_BOX_ISA_X86_64)
