@@ -14,6 +14,10 @@ namespace bench_box {
 			return _mm512_load_ps(&data);
 		}
 
+		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg16f loadu16f16f(const float& data) noexcept {
+			return _mm512_loadu_ps(&data);
+		}
+
 		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg16f load8f16f_both(const float& data) noexcept {
 			const __m256i lower = _mm256_castps_si256(_mm256_load_ps(&data));
 			return _mm512_castsi512_ps(_mm512_inserti64x4(_mm512_castsi256_si512(lower), lower, 1));
@@ -45,6 +49,10 @@ namespace bench_box {
 
 		BENCH_BOX_ALWAYS_INLINE void store16f(float& out, const reg16f& reg) noexcept {
 			_mm512_store_ps(&out, reg);
+		}
+
+		BENCH_BOX_ALWAYS_INLINE void storeu16f(float& out, const reg16f& reg) noexcept {
+			_mm512_storeu_ps(&out, reg);
 		}
 
 		BENCH_BOX_ALWAYS_INLINE void mask_store16f(float& out, const mask16& k, const reg16f& reg) noexcept {
@@ -81,6 +89,10 @@ namespace bench_box {
 
 		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg16f sqrt16f(const reg16f& a) noexcept {
 			return _mm512_sqrt_ps(a);
+		}
+
+		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg16f floor16f(const reg16f& a) noexcept {
+			return _mm512_floor_ps(a);
 		}
 
 		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg16f abs16f(const reg16f& a) noexcept {
@@ -190,6 +202,14 @@ namespace bench_box {
 
 		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg16f cvt16i32_to_16f(const reg16i32& a) noexcept {
 			return _mm512_cvtepi32_ps(a);
+		}
+
+		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg16f cast16i32_to_16f(const reg16i32& a) noexcept {
+			return _mm512_castsi512_ps(a);
+		}
+
+		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg16i32 cast16f_to_16i32(const reg16f& a) noexcept {
+			return _mm512_castps_si512(a);
 		}
 	} // namespace simd
 } // namespace bench_box

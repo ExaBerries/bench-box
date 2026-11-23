@@ -14,6 +14,10 @@ namespace bench_box {
 			return _mm512_load_si512(reinterpret_cast<const reg16i32*>(&data));
 		}
 
+		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg16i32 loadu16i32(const int32_t& data) noexcept {
+			return _mm512_loadu_si512(reinterpret_cast<const reg16i32*>(&data));
+		}
+
 		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg16i32 broadcast16i32(const int32_t& value) noexcept {
 			return _mm512_set1_epi32(static_cast<int>(value));
 		}
@@ -28,6 +32,10 @@ namespace bench_box {
 
 		BENCH_BOX_ALWAYS_INLINE void store16i32(int32_t& out, const reg16i32& reg) noexcept {
 			_mm512_store_si512(reinterpret_cast<reg16i32*>(&out), reg);
+		}
+
+		BENCH_BOX_ALWAYS_INLINE void storeu16i32(int32_t& out, const reg16i32& reg) noexcept {
+			_mm512_storeu_si512(reinterpret_cast<reg16i32*>(&out), reg);
 		}
 
 		BENCH_BOX_ALWAYS_INLINE void mask_store16i32(int32_t& out, const mask16& k, const reg16i32& reg) noexcept {
@@ -203,6 +211,18 @@ namespace bench_box {
 
 		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE int32_t reduce_max16i32(const reg16i32& a) noexcept {
 			return _mm512_reduce_max_epi32(a);
+		}
+
+		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE mask16 and16mask(const mask16& a, const mask16& b) noexcept {
+			return static_cast<mask16>(static_cast<uint32_t>(a) & static_cast<uint32_t>(b));
+		}
+
+		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE mask16 or16mask(const mask16& a, const mask16& b) noexcept {
+			return static_cast<mask16>(static_cast<uint32_t>(a) | static_cast<uint32_t>(b));
+		}
+
+		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE mask16 not16mask(const mask16& a) noexcept {
+			return static_cast<mask16>(~static_cast<uint32_t>(a));
 		}
 	} // namespace simd
 } // namespace bench_box

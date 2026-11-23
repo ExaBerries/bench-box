@@ -20,6 +20,10 @@
 #if defined(BENCH_BOX_ISA_X86) || defined(BENCH_BOX_ISA_X86_64)
 	#include <immintrin.h>
 
+	#if defined(__SSE2__)
+		#include <bench_box/isa/x86/sse2.h>
+	#endif
+
 	#if defined(__AVX__)
 		#include <bench_box/isa/x86/avx.h>
 

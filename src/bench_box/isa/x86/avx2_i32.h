@@ -14,12 +14,20 @@ namespace bench_box {
 			return _mm256_load_si256(reinterpret_cast<const reg8i32*>(&data));
 		}
 
+		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg8i32 loadu8i32(const int32_t& data) noexcept {
+			return _mm256_loadu_si256(reinterpret_cast<const reg8i32*>(&data));
+		}
+
 		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg8i32 broadcast8i32(const int32_t& value) noexcept {
 			return _mm256_set1_epi32(static_cast<int>(value));
 		}
 
 		BENCH_BOX_ALWAYS_INLINE void store8i32(int32_t& out, const reg8i32& reg) noexcept {
 			_mm256_store_si256(reinterpret_cast<reg8i32*>(&out), reg);
+		}
+
+		BENCH_BOX_ALWAYS_INLINE void storeu8i32(int32_t& out, const reg8i32& reg) noexcept {
+			_mm256_storeu_si256(reinterpret_cast<reg8i32*>(&out), reg);
 		}
 
 		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg8i32 zero_reg8i32() noexcept {
@@ -115,10 +123,6 @@ namespace bench_box {
 
 		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg8i32 blendv8i32(const reg8i32& a, const reg8i32& b, const reg8i32& mask) noexcept {
 			return _mm256_blendv_epi8(a, b, mask);
-		}
-
-		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg4i32 blendv4i32(const reg4i32& a, const reg4i32& b, const reg4i32& mask) noexcept {
-			return _mm_blendv_epi8(a, b, mask);
 		}
 
 		template <uint32_t mask>

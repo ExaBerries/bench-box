@@ -14,6 +14,14 @@ namespace bench_box {
 			return _mm256_cvtepi32_ps(a);
 		}
 
+		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg8f cast8i32_to_8f(const reg8i32& a) noexcept {
+			return _mm256_castsi256_ps(a);
+		}
+
+		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg8i32 cast8f_to_8i32(const reg8f& a) noexcept {
+			return _mm256_castps_si256(a);
+		}
+
 		#if defined(BENCH_BOX_SIMD_FMA)
 			// scalar fma into lane 0 only
 			[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg4f fmadd4f_lo(const reg4f& a, const reg4f& b, const reg4f& c) noexcept {
