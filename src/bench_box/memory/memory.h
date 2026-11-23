@@ -91,7 +91,7 @@ namespace bench_box {
 
 	struct unsafe_bump_allocator {
 		const bool use_large_pages = false;
-		std::size_t heap_size = 0u;
+		const std::size_t heap_size = 0u;
 		void* heap = nullptr;
 		void* current = nullptr;
 
@@ -101,20 +101,10 @@ namespace bench_box {
 		}
 
 		unsafe_bump_allocator(const unsafe_bump_allocator&) noexcept = delete;
-
-		unsafe_bump_allocator(unsafe_bump_allocator&& other) noexcept : use_large_pages(other.use_large_pages), heap_size(other.heap_size), heap(other.heap), current(other.current) {
-			other.heap = nullptr;
-			other.current = nullptr;
-		}
+		unsafe_bump_allocator(unsafe_bump_allocator&& other) noexcept = delete;
 
 		~unsafe_bump_allocator() noexcept {
-			if (heap != nullptr) {
-				if (use_large_pages) {
-					free_large_page(heap, heap_size);
-				} else {
-					free_aligned_64(heap, heap_size);
-				}
-			}
+			free_heap();
 		}
 
 		[[nodiscard]] void* allocate(std::size_t bytes, std::size_t align) noexcept {
@@ -127,7 +117,23 @@ namespace bench_box {
 			return reinterpret_cast<void*>(aligned);
 		}
 
-		[[nodiscard]] bool heap_valid() noexcept {
+		void reset() noexcept {
+			current = heap;
+		}
+
+		void free_heap() noexcept {
+			if (heap != nullptr) {
+				if (use_large_pages) {
+					free_large_page(heap, heap_size);
+				} else {
+					free_aligned_64(heap, heap_size);
+				}
+				current = nullptr;
+				heap = nullptr;
+			}
+		}
+
+		[[nodiscard]] bool heap_valid() const noexcept {
 			return heap != nullptr;
 		}
 
@@ -159,10 +165,13 @@ namespace bench_box {
 
 		template <typename U>
 		struct rebind {
-			using other = lp_flex_allocator_t<U>;
+			using other = unsafe_bump_alloc_t<U>;
 		};
 
 		value_type* allocate(size_type n) {
+			if (alloc == nullptr || !alloc->heap_valid()) {
+				throw std::bad_alloc();
+			}
 			return reinterpret_cast<T*>(alloc->allocate(sizeof(T) * n, alignof(T)));
 		}
 

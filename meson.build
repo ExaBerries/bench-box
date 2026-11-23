@@ -102,6 +102,7 @@ test_exe = executable(
 	base_name + 'utest',
 	[
 		'test/src/buffer_test.cpp',
+		'test/src/memory_test.cpp',
 		'test/src/mapping.cpp',
 		'test/src/mapping_numa_test.cpp',
 		'test/src/mapping_phte_test.cpp',
