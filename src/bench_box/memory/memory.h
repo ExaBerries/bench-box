@@ -36,8 +36,7 @@ namespace bench_box {
 		using propagate_on_container_swap = std::true_type;
 		using is_always_equal = std::false_type;
 
-		// don't modify after creation
-		const bool use_large_pages = false;
+		bool use_large_pages = false; // can only be changed before allocating or after deallocating
 
 		lp_flex_allocator_t() noexcept = default;
 		explicit lp_flex_allocator_t(bool use_lp) noexcept : use_large_pages(use_lp) {}
@@ -88,6 +87,9 @@ namespace bench_box {
 			return !(*this == other);
 		}
 	};
+
+	template <typename T>
+	using lp_flx_allc_t = lp_flex_allocator_t<T>;
 
 	struct unsafe_bump_allocator {
 		const bool use_large_pages = false;
@@ -141,6 +143,8 @@ namespace bench_box {
 		unsafe_bump_allocator& operator=(unsafe_bump_allocator&& other) noexcept = delete;
 	};
 
+	using uns_bump_allc = unsafe_bump_allocator;
+
 	template <typename T>
 	struct unsafe_bump_alloc_t {
 		using value_type = T;
@@ -154,8 +158,7 @@ namespace bench_box {
 		using propagate_on_container_swap = std::true_type;
 		using is_always_equal = std::false_type;
 
-		// don't modify after creation
-		unsafe_bump_allocator* alloc = nullptr;
+		unsafe_bump_allocator* alloc = nullptr; // should only ever be changed if its nullptr
 
 		unsafe_bump_alloc_t() noexcept = default;
 		explicit unsafe_bump_alloc_t(unsafe_bump_allocator& b_alloc) noexcept : alloc(&b_alloc) {}
@@ -187,4 +190,7 @@ namespace bench_box {
 			return !(*this == other);
 		}
 	};
+
+	template <typename T>
+	using uns_bump_allc_t = unsafe_bump_alloc_t<T>;
 } // namespace bench_box

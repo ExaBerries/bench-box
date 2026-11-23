@@ -103,6 +103,7 @@ test_exe = executable(
 	[
 		'test/src/buffer_test.cpp',
 		'test/src/memory_test.cpp',
+		'test/src/unique_array_test.cpp',
 		'test/src/mapping.cpp',
 		'test/src/mapping_numa_test.cpp',
 		'test/src/mapping_phte_test.cpp',

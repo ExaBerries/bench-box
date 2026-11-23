@@ -8,35 +8,26 @@ namespace bench_box {
 	template <typename TYPE, typename ALLOCATOR>
 	buffer<TYPE, ALLOCATOR>::buffer(std::size_t size_n, const ALLOCATOR& allocator) noexcept : alloc(allocator) {
 		static_assert(std::is_default_constructible_v<TYPE>);
+		TYPE* ptr = nullptr;
 		try {
-			this->data = alloc.allocate(size_n);
-			std::uninitialized_default_construct_n(this->data, size_n);
-			this->size = size_n;
-		} catch (const std::bad_alloc&) {
+			ptr = alloc.allocate(size_n);
+			if (size_n != 0) {
+				std::uninitialized_default_construct_n(ptr, size_n);
+			}
+		} catch (...) {
+			if (ptr != nullptr) {
+				alloc.deallocate(ptr, size_n);
+			}
 			this->data = nullptr;
 			this->size = 0ull;
+			return;
 		}
+		this->data = ptr;
+		this->size = size_n;
 	}
 
 	template <typename TYPE, typename ALLOCATOR>
 	buffer<TYPE, ALLOCATOR>::buffer(std::nullptr_t, const ALLOCATOR& allocator) noexcept : alloc(allocator), size(0ull), data(nullptr) {
-	}
-
-	template <typename TYPE, typename ALLOCATOR>
-	buffer<TYPE, ALLOCATOR>::buffer(std::size_t size_n, TYPE* data_n, const ALLOCATOR& allocator) noexcept : alloc(allocator), size(size_n), data(data_n) {
-	}
-
-	template <typename TYPE, typename ALLOCATOR>
-	void buffer<TYPE, ALLOCATOR>::realloc(std::size_t size_n) noexcept {
-		free();
-		try {
-			this->data = alloc.allocate(size_n);
-			std::uninitialized_default_construct_n(this->data, size_n);
-			this->size = size_n;
-		} catch (const std::bad_alloc&) {
-			this->data = nullptr;
-			this->size = 0ull;
-		}
 	}
 
 	template <typename TYPE, typename ALLOCATOR>
@@ -78,6 +69,31 @@ namespace bench_box {
 	}
 
 	template <typename TYPE, typename ALLOCATOR>
+	bool buffer<TYPE, ALLOCATOR>::valid() const noexcept {
+		return data != nullptr;
+	}
+
+	template <typename TYPE, typename ALLOCATOR>
+	bool buffer<TYPE, ALLOCATOR>::empty() const noexcept {
+		return size == 0;
+	}
+
+	template <typename TYPE, typename ALLOCATOR>
+	buffer<TYPE, ALLOCATOR>::operator bool() const noexcept {
+		return !empty();
+	}
+
+	template <typename TYPE, typename ALLOCATOR>
+	std::span<TYPE> buffer<TYPE, ALLOCATOR>::span() noexcept {
+		return {data, size};
+	}
+
+	template <typename TYPE, typename ALLOCATOR>
+	std::span<const TYPE> buffer<TYPE, ALLOCATOR>::span() const noexcept {
+		return {data, size};
+	}
+
+	template <typename TYPE, typename ALLOCATOR>
 	TYPE& buffer<TYPE, ALLOCATOR>::operator[](std::size_t idx) noexcept {
 		return data[idx];
 	}
@@ -85,23 +101,6 @@ namespace bench_box {
 	template <typename TYPE, typename ALLOCATOR>
 	const TYPE& buffer<TYPE, ALLOCATOR>::operator[](std::size_t idx) const noexcept {
 		return data[idx];
-	}
-
-	template <typename TYPE, typename ALLOCATOR>
-	template <typename OTHERTYPE, typename OTHERALLOCATOR>
-	buffer<TYPE, ALLOCATOR>::operator buffer<OTHERTYPE, OTHERALLOCATOR>() noexcept {
-		static_assert(sizeof(OTHERTYPE) % sizeof(TYPE) == 0);
-		buffer<OTHERTYPE> buff(size * sizeof(TYPE) / sizeof(OTHERTYPE), reinterpret_cast<OTHERTYPE*>(data));
-		return buff;
-	}
-
-
-	template <typename TYPE, typename ALLOCATOR>
-	template <typename OTHERTYPE, typename OTHERALLOCATOR>
-	buffer<TYPE, ALLOCATOR>::operator buffer<OTHERTYPE, OTHERALLOCATOR>() const noexcept {
-		static_assert(sizeof(OTHERTYPE) % sizeof(TYPE) == 0);
-		const buffer<OTHERTYPE> buff(size * sizeof(TYPE) / sizeof(OTHERTYPE), reinterpret_cast<OTHERTYPE*>(data));
-		return buff;
 	}
 
 	template <typename TYPE, typename ALLOCATOR>
@@ -137,21 +136,23 @@ namespace bench_box {
 
 	template <typename TYPE, typename ALLOCATOR>
 	buffer<TYPE, ALLOCATOR>& buffer<TYPE, ALLOCATOR>::operator=(buffer<TYPE, ALLOCATOR>&& source) noexcept {
-		this->alloc = std::move(source.alloc);
-		this->size = source.size;
-		this->data = source.data;
-		source.size = 0ull;
-		source.data = nullptr;
+		if (this != &source) {
+			this->alloc = std::move(source.alloc);
+			this->size = source.size;
+			this->data = source.data;
+			source.size = 0ull;
+			source.data = nullptr;
+		}
 		return *this;
 	}
 
 	template <typename TYPE, typename ALLOCATOR>
-	bool operator==(buffer<TYPE, ALLOCATOR>& buffer, const void* ptr) noexcept {
+	bool operator==(const buffer<TYPE, ALLOCATOR>& buffer, const void* ptr) noexcept {
 		return buffer.data == ptr;
 	}
 
 	template <typename TYPE, typename ALLOCATOR>
-	bool operator!=(buffer<TYPE, ALLOCATOR>& buffer, const void* ptr) noexcept {
+	bool operator!=(const buffer<TYPE, ALLOCATOR>& buffer, const void* ptr) noexcept {
 		return buffer.data != ptr;
 	}
 } // namspace bench_box

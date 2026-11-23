@@ -552,6 +552,30 @@ TEST(UnsafeBumpAllocT, BufferMoveTransfersStorage) {
 	EXPECT_TRUE(in_arena(arena, data, 8u * sizeof(int)));
 }
 
+TEST(UnsafeBumpAllocT, BufferMoveAssignStealsSourceArena) {
+	unsafe_bump_allocator first_arena(false, arena_size);
+	unsafe_bump_allocator second_arena(false, arena_size);
+	unsafe_bump_alloc_t<int> first_alloc(first_arena);
+	unsafe_bump_alloc_t<int> second_alloc(second_arena);
+
+	buffer<int, unsafe_bump_alloc_t<int>> first(8u, first_alloc);
+	buffer<int, unsafe_bump_alloc_t<int>> second(8u, second_alloc);
+	ASSERT_NE(first.data, nullptr);
+	ASSERT_NE(second.data, nullptr);
+	int* const source_data = second.data;
+
+	first = std::move(second);
+
+	// the destination released against its old arena, then took the source's
+	// arena and storage
+	EXPECT_EQ(first.data, source_data);
+	EXPECT_EQ(first.alloc, second_alloc);
+	EXPECT_EQ(first.size, std::size_t{8});
+	EXPECT_EQ(second.data, nullptr);
+	EXPECT_EQ(second.size, std::size_t{0});
+	EXPECT_TRUE(in_arena(second_arena, source_data, 8u * sizeof(int)));
+}
+
 TEST(UnsafeBumpAllocT, ResetReusesArenaForNextIteration) {
 	unsafe_bump_allocator arena(false, arena_size);
 	unsafe_bump_alloc_t<int> a(arena);
