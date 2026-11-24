@@ -129,12 +129,6 @@ test_exe = executable(
 
 test('gtest', test_exe, protocol: 'gtest', timeout: 30)
 
-mat3_bench_exe = executable(
-	base_name + 'mat3-bench',
-	['bench/mat3_bench.cpp'],
-	include_directories: inc_dir,
-)
-
 harness_test_exe = executable(
 	base_name + 'harness-utest',
 	[

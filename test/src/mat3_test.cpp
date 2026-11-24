@@ -88,6 +88,47 @@ TEST(Mat3F, RowColumnAccess) {
 	EXPECT_EQ(view.at(2, 0), 24.0f);
 }
 
+TEST(Mat3F, OuterProduct) {
+	constexpr vec3f a{1.0f, 2.0f, 3.0f};
+	constexpr vec3f b{4.0f, 5.0f, 6.0f};
+	constexpr mat3f ab{
+		4.0f, 5.0f, 6.0f,
+		8.0f, 10.0f, 12.0f,
+		12.0f, 15.0f, 18.0f
+	};
+	constexpr mat3f ba{
+		4.0f, 8.0f, 12.0f,
+		5.0f, 10.0f, 15.0f,
+		6.0f, 12.0f, 18.0f
+	};
+
+	static_assert(outer(a, b) == ab);
+	static_assert(outer(b, a) == ba);
+	static_assert(outer(a, b) != outer(b, a));
+
+	mat3f built;
+	EXPECT_TRUE((built.setOuter(a, b) == ab));
+	EXPECT_EQ(built.values[3], 0.0f);
+	EXPECT_EQ(built.values[7], 0.0f);
+	EXPECT_EQ(built.values[11], 0.0f);
+
+	constexpr vec3d ad{1.0, 2.0, 3.0};
+	constexpr vec3d bd{4.0, 5.0, 6.0};
+	static_assert(outer(ad, bd) == mat3d{
+		4.0, 5.0, 6.0,
+		8.0, 10.0, 12.0,
+		12.0, 15.0, 18.0
+	});
+
+	// (a outer b) * v == a * (b . v)
+	constexpr vec3f v{1.0f, 1.0f, 1.0f};
+	const vec3f left_side = outer(a, b) * v;
+	const vec3f right_side = a * b.dot(v);
+	EXPECT_NEAR(left_side.x, right_side.x, 1e-6f);
+	EXPECT_NEAR(left_side.y, right_side.y, 1e-6f);
+	EXPECT_NEAR(left_side.z, right_side.z, 1e-6f);
+}
+
 TEST(Mat3F, AddSubtract) {
 	constexpr mat3f a{
 		1.0f, 2.0f, 3.0f,

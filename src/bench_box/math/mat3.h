@@ -57,6 +57,8 @@ namespace bench_box {
 
 			constexpr mat3& setIdentity() noexcept;
 			constexpr mat3& set(const T (&values)[9]) noexcept;
+			template <std::size_t VA, std::size_t VB>
+			constexpr mat3& setOuter(const vec3<T, VA>& left, const vec3<T, VB>& right) noexcept;
 
 			[[nodiscard]] constexpr T determinant() const noexcept;
 			constexpr mat3& invert() noexcept;
@@ -87,6 +89,10 @@ namespace bench_box {
 		constexpr vec3<T, VA> operator*(const mat3<T, A>& matrix, const vec3<T, VA>& vector) noexcept;
 		template <typename T, std::size_t A, std::size_t VA>
 		constexpr vec3<T, VA> operator*(const vec3<T, VA>& vector, const mat3<T, A>& matrix) noexcept;
+
+		// Dyadic product: (left * right^T)[i][j] == left[i] * right[j].
+		template <typename T, std::size_t VA, std::size_t VB, std::size_t A = vec3_alignment<T>>
+		[[nodiscard]] constexpr mat3<T, A> outer(const vec3<T, VA>& left, const vec3<T, VB>& right) noexcept;
 	} // namespace math
 } // namespace bench_box
 

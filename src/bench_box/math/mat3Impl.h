@@ -54,6 +54,56 @@ namespace bench_box {
 		}
 
 		template <typename T, std::size_t A>
+		template <std::size_t VA, std::size_t VB>
+		constexpr mat3<T, A, std::enable_if_t<std::is_floating_point<T>::value>>& mat3<T, A, std::enable_if_t<std::is_floating_point<T>::value>>::setOuter(const vec3<T, VA>& left, const vec3<T, VB>& right) noexcept {
+			// Each output row is left[row] * right, so this is a broadcast plus three row stores.
+		#if defined(BENCH_BOX_SIMD_USE_INTRIN_FMA)
+			if (!std::is_constant_evaluated()) {
+				if constexpr (std::is_same_v<T, float>) {
+					static_assert(alignof(vec3<T, VB>) >= alignof(simd::reg4f), "vec3 must be aligned for SIMD loads");
+					static_assert(sizeof(vec3<T, VB>) >= 4 * sizeof(T), "vec3 must have a full padding lane for SIMD loads");
+					const simd::reg4f r = simd::blend4f<0b1000>(simd::load4f4f(right.x), simd::zero_reg4f());
+					simd::store4f(values[0], simd::mul4f(r, simd::load1f4f(left.x)));
+					simd::store4f(values[4], simd::mul4f(r, simd::load1f4f(left.y)));
+					simd::store4f(values[8], simd::mul4f(r, simd::load1f4f(left.z)));
+					return *this;
+				} else if constexpr (std::is_same_v<T, double>) {
+					static_assert(alignof(vec3<T, VB>) >= alignof(simd::reg4d), "vec3 must be aligned for SIMD loads");
+					static_assert(sizeof(vec3<T, VB>) >= 4 * sizeof(T), "vec3 must have a full padding lane for SIMD loads");
+					const simd::reg4d r = simd::blend4d<0b1000>(simd::load4d4d(right.x), simd::zero_reg4d());
+					simd::store4d(values[0], simd::mul4d(r, simd::load1d4d(left.x)));
+					simd::store4d(values[4], simd::mul4d(r, simd::load1d4d(left.y)));
+					simd::store4d(values[8], simd::mul4d(r, simd::load1d4d(left.z)));
+					return *this;
+				}
+			}
+		#endif
+			const T rx = right.x;
+			const T ry = right.y;
+			const T rz = right.z;
+			values[0] = left.x * rx;
+			values[1] = left.x * ry;
+			values[2] = left.x * rz;
+			values[3] = 0;
+			values[4] = left.y * rx;
+			values[5] = left.y * ry;
+			values[6] = left.y * rz;
+			values[7] = 0;
+			values[8] = left.z * rx;
+			values[9] = left.z * ry;
+			values[10] = left.z * rz;
+			values[11] = 0;
+			return *this;
+		}
+
+		template <typename T, std::size_t VA, std::size_t VB, std::size_t A>
+		constexpr mat3<T, A> outer(const vec3<T, VA>& left, const vec3<T, VB>& right) noexcept {
+			mat3<T, A> result;
+			result.setOuter(left, right);
+			return result;
+		}
+
+		template <typename T, std::size_t A>
 		constexpr T mat3<T, A, std::enable_if_t<std::is_floating_point<T>::value>>::determinant() const noexcept {
 			const T m00 = values[0];
 			const T m01 = values[1];
