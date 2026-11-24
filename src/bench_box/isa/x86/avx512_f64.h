@@ -2,6 +2,11 @@
 
 namespace bench_box {
 	namespace simd {
+
+		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg8d create8d(double m0, double m1, double m2, double m3, double m4, double m5, double m6, double m7) noexcept {
+			return _mm512_set_pd(m7, m6, m5, m4, m3, m2, m1, m0);
+		}
+
 		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg8d zero_reg8d() noexcept {
 			return _mm512_setzero_pd();
 		}

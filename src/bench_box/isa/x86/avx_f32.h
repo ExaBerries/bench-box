@@ -3,6 +3,11 @@
 
 namespace bench_box {
 	namespace simd {
+
+		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg8f create8f(float m0, float m1, float m2, float m3, float m4, float m5, float m6, float m7) noexcept {
+			return _mm256_set_ps(m7, m6, m5, m4, m3, m2, m1, m0);
+		}
+
 		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg8f load8f8f(const float& data) noexcept {
 			return _mm256_load_ps(&data);
 		}

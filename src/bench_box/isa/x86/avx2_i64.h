@@ -18,6 +18,15 @@ namespace bench_box {
 			return _mm256_set1_epi64x(static_cast<long long>(value));
 		}
 
+		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg4i64 create4i64(int64_t m0, int64_t m1, int64_t m2, int64_t m3) noexcept {
+			return _mm256_set_epi64x(
+				static_cast<long long>(m3),
+				static_cast<long long>(m2),
+				static_cast<long long>(m1),
+				static_cast<long long>(m0)
+			);
+		}
+
 		BENCH_BOX_ALWAYS_INLINE void store4i64(int64_t& out, const reg4i64& reg) noexcept {
 			_mm256_store_si256(reinterpret_cast<reg4i64*>(&out), reg);
 		}

@@ -2,6 +2,11 @@
 
 namespace bench_box {
 	namespace simd {
+
+		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg8i32 create8i32(int32_t m0, int32_t m1, int32_t m2, int32_t m3, int32_t m4, int32_t m5, int32_t m6, int32_t m7) noexcept {
+			return _mm256_set_epi32(m7, m6, m5, m4, m3, m2, m1, m0);
+		}
+
 		template <int32_t m0, int32_t m1, int32_t m2, int32_t m3, int32_t m4, int32_t m5, int32_t m6, int32_t m7>
 		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg8i32 create_mask_8i32() noexcept {
 			alignas(alignof(reg8i32)) static constexpr int32_t mask_data[8] = {

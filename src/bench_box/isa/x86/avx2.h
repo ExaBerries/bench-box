@@ -1,6 +1,7 @@
 #pragma once
 #if defined(__AVX2__)
 
+#define BENCH_BOX_SIMD_AVX2
 #define BENCH_BOX_SIMD_REG4I64
 #define BENCH_BOX_SIMD_REG8I32
 
@@ -25,5 +26,6 @@ namespace bench_box {
 #include "avx2_f32.h"
 #include "avx2_i32.h"
 #include "avx2_i64.h"
+#include "avx2_gather.h"
 
 #endif

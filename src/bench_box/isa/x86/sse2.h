@@ -1,9 +1,14 @@
 #pragma once
 #if defined(__SSE2__)
 
+#define BENCH_BOX_SIMD_SSE2
 #define BENCH_BOX_SIMD_REG2D
 #define BENCH_BOX_SIMD_REG4F
 #define BENCH_BOX_SIMD_REG4I32
+
+#if defined(__SSE4_1__)
+	#define BENCH_BOX_SIMD_SSE4_1
+#endif
 
 #include <bench_box/isa/isa_macro.h>
 #include <cstdint>

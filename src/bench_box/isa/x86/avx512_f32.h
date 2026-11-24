@@ -2,6 +2,14 @@
 
 namespace bench_box {
 	namespace simd {
+
+		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg16f create16f(
+			float m0, float m1, float m2, float m3, float m4, float m5, float m6, float m7,
+			float m8, float m9, float m10, float m11, float m12, float m13, float m14, float m15
+		) noexcept {
+			return _mm512_set_ps(m15, m14, m13, m12, m11, m10, m9, m8, m7, m6, m5, m4, m3, m2, m1, m0);
+		}
+
 		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg16f zero_reg16f() noexcept {
 			return _mm512_setzero_ps();
 		}

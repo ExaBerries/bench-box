@@ -1,6 +1,7 @@
 #pragma once
 #if defined(__AVX512F__)
 
+#define BENCH_BOX_SIMD_AVX512F
 #define BENCH_BOX_SIMD_REG8D
 #define BENCH_BOX_SIMD_REG8I64
 #define BENCH_BOX_SIMD_REG16F

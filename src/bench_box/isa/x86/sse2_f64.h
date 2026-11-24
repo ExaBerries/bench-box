@@ -2,6 +2,11 @@
 
 namespace bench_box {
 	namespace simd {
+
+		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg2d create2d(double m0, double m1) noexcept {
+			return _mm_set_pd(m1, m0);
+		}
+
 		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg2d load2d2d(const double& data) noexcept {
 			return _mm_load_pd(&data);
 		}
@@ -115,7 +120,7 @@ namespace bench_box {
 		}
 
 		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg2d blendv2d(const reg2d& a, const reg2d& b, const reg2d& mask) noexcept {
-			#if defined(__SSE4_1__)
+			#if defined(BENCH_BOX_SIMD_SSE4_1)
 				return _mm_blendv_pd(a, b, mask);
 			#else
 				return or2d(and2d(mask, b), andnot2d(mask, a));

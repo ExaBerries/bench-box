@@ -2,6 +2,11 @@
 
 namespace bench_box {
 	namespace simd {
+
+		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg4f create4f(float m0, float m1, float m2, float m3) noexcept {
+			return _mm_set_ps(m3, m2, m1, m0);
+		}
+
 		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg4f load4f4f(const float& data) noexcept {
 			return _mm_load_ps(&data);
 		}
@@ -115,7 +120,7 @@ namespace bench_box {
 		}
 
 		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg4f blendv4f(const reg4f& a, const reg4f& b, const reg4f& mask) noexcept {
-			#if defined(__SSE4_1__)
+			#if defined(BENCH_BOX_SIMD_SSE4_1)
 				return _mm_blendv_ps(a, b, mask);
 			#else
 				return or4f(and4f(mask, b), andnot4f(mask, a));
@@ -123,7 +128,7 @@ namespace bench_box {
 		}
 
 		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg4f floor4f(const reg4f& a) noexcept {
-			#if defined(__SSE4_1__)
+			#if defined(BENCH_BOX_SIMD_SSE4_1)
 				return _mm_floor_ps(a);
 			#else
 				const reg4f truncated = _mm_cvtepi32_ps(_mm_cvttps_epi32(a));
@@ -164,7 +169,7 @@ namespace bench_box {
 
 		template <uint32_t mask>
 		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg4f blend4f(const reg4f& a, const reg4f& b) noexcept {
-			#if defined(__SSE4_1__)
+			#if defined(BENCH_BOX_SIMD_SSE4_1)
 				return _mm_blend_ps(a, b, static_cast<int>(mask));
 			#else
 				const reg4i32 mask_reg = _mm_set_epi32(

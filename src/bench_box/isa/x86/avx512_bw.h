@@ -1,5 +1,6 @@
 #pragma once
 #if defined(__AVX512BW__)
+#define BENCH_BOX_SIMD_AVX512BW
 
 #include <cstdint>
 #include <immintrin.h>

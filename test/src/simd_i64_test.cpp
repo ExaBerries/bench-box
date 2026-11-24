@@ -95,7 +95,7 @@ TEST(SimdI64, Mul4) {
 }
 #endif
 
-#if defined(BENCH_BOX_SIMD_REG2I64) && defined(BENCH_BOX_SIMD_REG4I64) && defined(__AVX512VL__) && defined(__AVX512DQ__)
+#if defined(BENCH_BOX_SIMD_REG2I64) && defined(BENCH_BOX_SIMD_REG4I64) && defined(BENCH_BOX_SIMD_AVX512VL) && defined(BENCH_BOX_SIMD_AVX512DQ)
 TEST(SimdI64, Mullo2Vl) {
 	std::mt19937_64 rng(0x13579bdf2468ace0ull);
 	for (int i = 0; i < 1000; i++) {
@@ -129,7 +129,7 @@ TEST(SimdI64, Mullo4Vl) {
 }
 #endif
 
-#if defined(BENCH_BOX_SIMD_REG8I64) && defined(__AVX512DQ__)
+#if defined(BENCH_BOX_SIMD_REG8I64) && defined(BENCH_BOX_SIMD_AVX512DQ)
 TEST(SimdI64, Mullo8) {
 	for (const std::uint64_t a : edge_values) {
 		for (const std::uint64_t b : edge_values) {

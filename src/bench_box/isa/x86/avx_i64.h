@@ -2,6 +2,11 @@
 
 namespace bench_box {
 	namespace simd {
+
+		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg2i64 create2i64(int64_t m0, int64_t m1) noexcept {
+			return _mm_set_epi64x(static_cast<long long>(m1), static_cast<long long>(m0));
+		}
+
 		template <int64_t m0, int64_t m1>
 		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg2i64 create_mask_2i64() noexcept {
 			alignas(alignof(reg2i64)) static constexpr int64_t mask_data[2] = {

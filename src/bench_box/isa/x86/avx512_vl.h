@@ -1,6 +1,7 @@
 #pragma once
 #if defined(__AVX512VL__)
 
+#define BENCH_BOX_SIMD_AVX512VL
 #define BENCH_BOX_SIMD_REG4D_VL
 
 #include <bench_box/isa/isa_macro.h>
@@ -83,5 +84,7 @@ namespace bench_box {
 		}
 	} // namespace simd
 } // namespace bench_box
+
+#include "avx512_vl_scatter.h"
 
 #endif

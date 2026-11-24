@@ -1,5 +1,7 @@
 #pragma once
 #include <bench_box/math/math.h>
+#include <bench_box/memory/vec2_soa.h>
+#include <bench_box/memory/vec3_soa.h>
 #include <cstddef>
 #include <cstdint>
 #include <memory>

@@ -3,6 +3,11 @@
 
 namespace bench_box {
 	namespace simd {
+
+		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg4i32 create4i32(int32_t m0, int32_t m1, int32_t m2, int32_t m3) noexcept {
+			return _mm_set_epi32(m3, m2, m1, m0);
+		}
+
 		template <int32_t m0, int32_t m1, int32_t m2, int32_t m3>
 		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg4i32 create_mask_4i32() noexcept {
 			alignas(alignof(reg4i32)) static constexpr int32_t mask_data[4] = {
@@ -76,7 +81,7 @@ namespace bench_box {
 		}
 
 		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg4i32 blendv4i32(const reg4i32& a, const reg4i32& b, const reg4i32& mask) noexcept {
-			#if defined(__SSE4_1__)
+			#if defined(BENCH_BOX_SIMD_SSE4_1)
 				return _mm_blendv_epi8(a, b, mask);
 			#else
 				return or4i32(and4i32(mask, b), andnot4i32(mask, a));
@@ -84,7 +89,7 @@ namespace bench_box {
 		}
 
 		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg4i32 mul4i32(const reg4i32& a, const reg4i32& b) noexcept {
-			#if defined(__SSE4_1__)
+			#if defined(BENCH_BOX_SIMD_SSE4_1)
 				return _mm_mullo_epi32(a, b);
 			#else
 				const reg4i32 even = _mm_mul_epu32(a, b);
@@ -96,7 +101,7 @@ namespace bench_box {
 		}
 
 		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg4i32 min4i32(const reg4i32& a, const reg4i32& b) noexcept {
-			#if defined(__SSE4_1__)
+			#if defined(BENCH_BOX_SIMD_SSE4_1)
 				return _mm_min_epi32(a, b);
 			#else
 				return blendv4i32(a, b, cmp_gt4i32(a, b));
@@ -104,7 +109,7 @@ namespace bench_box {
 		}
 
 		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg4i32 max4i32(const reg4i32& a, const reg4i32& b) noexcept {
-			#if defined(__SSE4_1__)
+			#if defined(BENCH_BOX_SIMD_SSE4_1)
 				return _mm_max_epi32(a, b);
 			#else
 				return blendv4i32(a, b, cmp_lt4i32(a, b));
@@ -112,7 +117,7 @@ namespace bench_box {
 		}
 
 		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg4i32 minu4i32(const reg4i32& a, const reg4i32& b) noexcept {
-			#if defined(__SSE4_1__)
+			#if defined(BENCH_BOX_SIMD_SSE4_1)
 				return _mm_min_epu32(a, b);
 			#else
 				const reg4i32 bias = _mm_set1_epi32(std::numeric_limits<int32_t>::min());
@@ -121,7 +126,7 @@ namespace bench_box {
 		}
 
 		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg4i32 maxu4i32(const reg4i32& a, const reg4i32& b) noexcept {
-			#if defined(__SSE4_1__)
+			#if defined(BENCH_BOX_SIMD_SSE4_1)
 				return _mm_max_epu32(a, b);
 			#else
 				const reg4i32 bias = _mm_set1_epi32(std::numeric_limits<int32_t>::min());

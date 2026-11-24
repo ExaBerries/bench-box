@@ -1,5 +1,5 @@
 #pragma once
-#if defined(__AVX512VL__) && defined(__AVX512DQ__)
+#if defined(BENCH_BOX_SIMD_AVX512VL) && defined(BENCH_BOX_SIMD_AVX512DQ)
 
 #include <bench_box/isa/isa_macro.h>
 #include <cstdint>

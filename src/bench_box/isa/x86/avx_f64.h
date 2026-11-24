@@ -3,6 +3,11 @@
 
 namespace bench_box {
 	namespace simd {
+
+		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg4d create4d(double m0, double m1, double m2, double m3) noexcept {
+			return _mm256_set_pd(m3, m2, m1, m0);
+		}
+
 		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg4d load4d4d(const double& data) noexcept {
 			return _mm256_load_pd(&data);
 		}
