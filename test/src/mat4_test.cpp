@@ -67,6 +67,25 @@ TEST(Mat4F, ArrayConstructor) {
 	EXPECT_EQ(assigned.values[15], 16.0f);
 }
 
+TEST(Mat4F, RowColumnAccess) {
+	static constexpr mat4f matrix{
+		1.0f, 2.0f, 3.0f, 4.0f,
+		5.0f, 6.0f, 7.0f, 8.0f,
+		9.0f, 10.0f, 11.0f, 12.0f,
+		13.0f, 14.0f, 15.0f, 16.0f
+	};
+	static_assert(matrix[0][0] == 1.0f);
+	static_assert(matrix[1][2] == 7.0f);
+	static_assert(matrix[3][3] == 16.0f);
+
+	mat4f writable = matrix;
+	writable[1][2] = 42.0f;
+	EXPECT_EQ(writable.values[6], 42.0f);
+
+	const mat4f& view = writable;
+	EXPECT_EQ(view[1][2], 42.0f);
+}
+
 TEST(Mat4F, AddSubtract) {
 	constexpr mat4f a{
 		1.0f, 0.0f, 9.0f, 0.0f,

@@ -14,6 +14,10 @@ namespace bench_box {
 			return _mm512_load_pd(&data);
 		}
 
+		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg8d loadu8d8d(const double& data) noexcept {
+			return _mm512_loadu_pd(&data);
+		}
+
 		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg8d load4d8d_both(const double& data) noexcept {
 			return _mm512_broadcast_f64x4(_mm256_load_pd(&data));
 		}
@@ -44,6 +48,10 @@ namespace bench_box {
 
 		BENCH_BOX_ALWAYS_INLINE void store8d(double& out, const reg8d& reg) noexcept {
 			_mm512_store_pd(&out, reg);
+		}
+
+		BENCH_BOX_ALWAYS_INLINE void storeu8d(double& out, const reg8d& reg) noexcept {
+			_mm512_storeu_pd(&out, reg);
 		}
 
 		BENCH_BOX_ALWAYS_INLINE void mask_store8d(double& out, const mask8& k, const reg8d& reg) noexcept {

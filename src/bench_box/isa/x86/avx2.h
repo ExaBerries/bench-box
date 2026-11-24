@@ -1,7 +1,6 @@
 #pragma once
 #if defined(__AVX2__)
 
-#define BENCH_BOX_SIMD_REG4D
 #define BENCH_BOX_SIMD_REG4I64
 #define BENCH_BOX_SIMD_REG8I32
 
@@ -16,7 +15,6 @@
 
 namespace bench_box {
 	namespace simd {
-		using reg4d = __m256d;
 		using reg4i64 = __m256i;
 
 		using reg8i32 = __m256i;

@@ -33,6 +33,14 @@ namespace bench_box {
 				0, 0, 0, 1
 			};
 
+			[[nodiscard]] constexpr T* operator[](std::size_t row) noexcept {
+				return values + row * 4;
+			}
+
+			[[nodiscard]] constexpr const T* operator[](std::size_t row) const noexcept {
+				return values + row * 4;
+			}
+
 			mat4() = default;
 			constexpr explicit mat4(const T (&values)[16]) noexcept;
 			template <std::size_t VA, std::size_t QA>

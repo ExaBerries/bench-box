@@ -1,118 +1,148 @@
 #pragma once
+#include "sse2.h"
 
 namespace bench_box {
 	namespace simd {
-		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg2d load2d2d(const double& data) noexcept {
-			return _mm_load_pd(&data);
+		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg4d load4d4d(const double& data) noexcept {
+			return _mm256_load_pd(&data);
 		}
 
-		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg2d load1d2d(const double& value) noexcept {
-			return _mm_load1_pd(&value);
+		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg4d loadu4d4d(const double& data) noexcept {
+			return _mm256_loadu_pd(&data);
 		}
 
-		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg2d load1d2d_lo(const double& value) noexcept {
-			return _mm_load_sd(&value);
+		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg4d load1d4d(const double& value) noexcept {
+			return _mm256_set1_pd(value);
 		}
 
-		BENCH_BOX_ALWAYS_INLINE void store2d(double& out, const reg2d& reg) noexcept {
-			_mm_store_pd(&out, reg);
+		BENCH_BOX_ALWAYS_INLINE void store4d(double& out, const reg4d& reg) noexcept {
+			_mm256_store_pd(&out, reg);
 		}
 
-		BENCH_BOX_ALWAYS_INLINE void store2d_lo(double& out, const reg2d& reg) noexcept {
-			_mm_store_sd(&out, reg);
+		BENCH_BOX_ALWAYS_INLINE void storeu4d(double& out, const reg4d& reg) noexcept {
+			_mm256_storeu_pd(&out, reg);
 		}
 
-		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg2d zero_reg2d() noexcept {
-			return _mm_setzero_pd();
+		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg4d zero_reg4d() noexcept {
+			return _mm256_setzero_pd();
 		}
 
-		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE double extract2d_lo(const reg2d& a) noexcept {
-			return _mm_cvtsd_f64(a);
+		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg2d reg4d2d_lo(const reg4d& a) noexcept {
+			return _mm256_castpd256_pd128(a);
 		}
 
-		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg2d add2d(const reg2d& a, const reg2d& b) noexcept {
-			return _mm_add_pd(a, b);
+		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg2d reg4d2d_hi(const reg4d& a) noexcept {
+			return _mm256_extractf128_pd(a, 1);
 		}
 
-		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg2d sub2d(const reg2d& a, const reg2d& b) noexcept {
-			return _mm_sub_pd(a, b);
+		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE double extract4d_lo(const reg4d& a) noexcept {
+			return _mm_cvtsd_f64(_mm256_castpd256_pd128(a));
 		}
 
-		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg2d mul2d(const reg2d& a, const reg2d& b) noexcept {
-			return _mm_mul_pd(a, b);
+		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg4d add4d(const reg4d& a, const reg4d& b) noexcept {
+			return _mm256_add_pd(a, b);
 		}
 
-		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg2d div2d(const reg2d& a, const reg2d& b) noexcept {
-			return _mm_div_pd(a, b);
+		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg4d sub4d(const reg4d& a, const reg4d& b) noexcept {
+			return _mm256_sub_pd(a, b);
 		}
 
-		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg2d sqrt2d(const reg2d& a) noexcept {
-			return _mm_sqrt_pd(a);
+		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg4d mul4d(const reg4d& a, const reg4d& b) noexcept {
+			return _mm256_mul_pd(a, b);
 		}
 
-		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg2d min2d(const reg2d& a, const reg2d& b) noexcept {
-			return _mm_min_pd(a, b);
+		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg4d div4d(const reg4d& a, const reg4d& b) noexcept {
+			return _mm256_div_pd(a, b);
 		}
 
-		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg2d max2d(const reg2d& a, const reg2d& b) noexcept {
-			return _mm_max_pd(a, b);
+		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg4d sqrt4d(const reg4d& a) noexcept {
+			return _mm256_sqrt_pd(a);
 		}
 
-		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg2d abs2d(const reg2d& a) noexcept {
-			return _mm_andnot_pd(_mm_set1_pd(-0.0), a);
+		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg4d min4d(const reg4d& a, const reg4d& b) noexcept {
+			return _mm256_min_pd(a, b);
 		}
 
-		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg2d neg2d(const reg2d& a) noexcept {
-			return _mm_xor_pd(a, _mm_set1_pd(-0.0));
+		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg4d max4d(const reg4d& a, const reg4d& b) noexcept {
+			return _mm256_max_pd(a, b);
 		}
 
-		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg2d and2d(const reg2d& a, const reg2d& b) noexcept {
-			return _mm_and_pd(a, b);
+		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg4d abs4d(const reg4d& a) noexcept {
+			return _mm256_andnot_pd(_mm256_set1_pd(-0.0), a);
 		}
 
-		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg2d andnot2d(const reg2d& a, const reg2d& b) noexcept {
-			return _mm_andnot_pd(a, b);
+		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg4d neg4d(const reg4d& a) noexcept {
+			return _mm256_xor_pd(a, _mm256_set1_pd(-0.0));
 		}
 
-		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg2d or2d(const reg2d& a, const reg2d& b) noexcept {
-			return _mm_or_pd(a, b);
+		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg4d and4d(const reg4d& a, const reg4d& b) noexcept {
+			return _mm256_and_pd(a, b);
 		}
 
-		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg2d xor2d(const reg2d& a, const reg2d& b) noexcept {
-			return _mm_xor_pd(a, b);
+		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg4d andnot4d(const reg4d& a, const reg4d& b) noexcept {
+			return _mm256_andnot_pd(a, b);
 		}
 
-		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg2d cmp_lt2d(const reg2d& a, const reg2d& b) noexcept {
-			return _mm_cmplt_pd(a, b);
+		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg4d or4d(const reg4d& a, const reg4d& b) noexcept {
+			return _mm256_or_pd(a, b);
 		}
 
-		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg2d cmp_le2d(const reg2d& a, const reg2d& b) noexcept {
-			return _mm_cmple_pd(a, b);
+		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg4d xor4d(const reg4d& a, const reg4d& b) noexcept {
+			return _mm256_xor_pd(a, b);
 		}
 
-		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg2d cmp_eq2d(const reg2d& a, const reg2d& b) noexcept {
-			return _mm_cmpeq_pd(a, b);
+		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg4d cmp_lt4d(const reg4d& a, const reg4d& b) noexcept {
+			return _mm256_cmp_pd(a, b, _CMP_LT_OS);
 		}
 
-		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg2d cmp_gt2d(const reg2d& a, const reg2d& b) noexcept {
-			return _mm_cmplt_pd(b, a);
+		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg4d cmp_le4d(const reg4d& a, const reg4d& b) noexcept {
+			return _mm256_cmp_pd(a, b, _CMP_LE_OS);
 		}
 
-		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg2d cmp_ge2d(const reg2d& a, const reg2d& b) noexcept {
-			return _mm_cmple_pd(b, a);
+		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg4d cmp_eq4d(const reg4d& a, const reg4d& b) noexcept {
+			return _mm256_cmp_pd(a, b, _CMP_EQ_OQ);
 		}
 
-		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg2d cmp_neq2d(const reg2d& a, const reg2d& b) noexcept {
-			return _mm_cmpneq_pd(a, b);
+		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg4d cmp_gt4d(const reg4d& a, const reg4d& b) noexcept {
+			return _mm256_cmp_pd(b, a, _CMP_LT_OS);
 		}
 
-		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg2d blendv2d(const reg2d& a, const reg2d& b, const reg2d& mask) noexcept {
-			return _mm_castps_pd(_mm_blendv_ps(_mm_castpd_ps(a), _mm_castpd_ps(b), _mm_castpd_ps(mask)));
+		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg4d cmp_ge4d(const reg4d& a, const reg4d& b) noexcept {
+			return _mm256_cmp_pd(b, a, _CMP_LE_OS);
 		}
 
-		template <int32_t m0, int32_t m1>
-		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg2d permute2d(const reg2d& a) noexcept {
-			return _mm_shuffle_pd(a, a, ((m1 & 1) << 1) | (m0 & 1));
+		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg4d cmp_neq4d(const reg4d& a, const reg4d& b) noexcept {
+			return _mm256_cmp_pd(a, b, _CMP_NEQ_UQ);
+		}
+
+		template <uint32_t mask>
+		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg4d blend4d(const reg4d& a, const reg4d& b) noexcept {
+			return _mm256_blend_pd(a, b, static_cast<int>(mask));
+		}
+
+		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg4d unpacklo4d(const reg4d& a, const reg4d& b) noexcept {
+			return _mm256_unpacklo_pd(a, b);
+		}
+
+		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg4d unpackhi4d(const reg4d& a, const reg4d& b) noexcept {
+			return _mm256_unpackhi_pd(a, b);
+		}
+
+		template <int32_t immediate>
+		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg4d permute2f128_4d(const reg4d& a, const reg4d& b) noexcept {
+			return _mm256_permute2f128_pd(a, b, immediate);
+		}
+
+		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg4d blendv4d(const reg4d& a, const reg4d& b, const reg4d& mask) noexcept {
+			return _mm256_castps_pd(_mm256_blendv_ps(_mm256_castpd_ps(a), _mm256_castpd_ps(b), _mm256_castpd_ps(mask)));
+		}
+
+		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg4d cvt4f_to_4d(const reg4f& a) noexcept {
+			return _mm256_cvtps_pd(a);
+		}
+
+		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg4d reg2d4d(const reg2d& a) noexcept {
+			return _mm256_insertf128_pd(_mm256_castpd128_pd256(a), a, 1);
 		}
 	} // namespace simd
 } // namespace bench_box

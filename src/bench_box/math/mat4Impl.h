@@ -999,7 +999,7 @@ namespace bench_box {
 							)
 						)
 					);
-					vec3<T, VA> ;
+					vec3<T, VA> out;
 					simd::store4f(out.x, res);
 					return out;
 				} else if constexpr (std::is_same_v<T, double>) {

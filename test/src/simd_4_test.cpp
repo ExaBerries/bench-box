@@ -496,3 +496,56 @@ TEST(Simd16, UnalignedFloorCastAndMasks) {
 	EXPECT_EQ(bench_box::simd::not16mask(a), static_cast<bench_box::simd::mask16>(0xF0F0));
 }
 #endif
+
+#if defined(BENCH_BOX_SIMD_REG2D)
+TEST(Simd2D, UnalignedLoadStoreAndArithmetic) {
+	double data[8] = {};
+	for (int i = 0; i < 8; i++) {
+		data[i] = static_cast<double>(i) + 0.5;
+	}
+
+	const bench_box::simd::reg2d loaded = bench_box::simd::loadu2d2d(data[1]);
+	bench_box::simd::storeu2d(data[5], loaded);
+	EXPECT_DOUBLE_EQ(data[5], 1.5);
+	EXPECT_DOUBLE_EQ(data[6], 2.5);
+
+	bench_box::simd::storeu2d(data[1], bench_box::simd::add2d(loaded, bench_box::simd::load1d2d(2.0)));
+	EXPECT_DOUBLE_EQ(data[1], 3.5);
+	EXPECT_DOUBLE_EQ(data[2], 4.5);
+}
+#endif
+
+#if defined(BENCH_BOX_SIMD_REG4D)
+TEST(Simd4D, UnalignedLoadStoreAndArithmetic) {
+	double data[16] = {};
+	for (int i = 0; i < 16; i++) {
+		data[i] = static_cast<double>(i) + 0.25;
+	}
+
+	const bench_box::simd::reg4d loaded = bench_box::simd::loadu4d4d(data[1]);
+	bench_box::simd::storeu4d(data[9], loaded);
+	for (int lane = 0; lane < 4; lane++) {
+		EXPECT_DOUBLE_EQ(data[9 + lane], static_cast<double>(1 + lane) + 0.25);
+	}
+
+	bench_box::simd::storeu4d(data[1], bench_box::simd::add4d(loaded, bench_box::simd::load1d4d(2.0)));
+	for (int lane = 0; lane < 4; lane++) {
+		EXPECT_DOUBLE_EQ(data[1 + lane], static_cast<double>(1 + lane) + 2.25);
+	}
+}
+#endif
+
+#if defined(BENCH_BOX_SIMD_REG8D)
+TEST(Simd8D, UnalignedLoadStore) {
+	double data[24] = {};
+	for (int i = 0; i < 24; i++) {
+		data[i] = static_cast<double>(i) + 0.75;
+	}
+
+	const bench_box::simd::reg8d loaded = bench_box::simd::loadu8d8d(data[1]);
+	bench_box::simd::storeu8d(data[9], loaded);
+	for (int lane = 0; lane < 8; lane++) {
+		EXPECT_DOUBLE_EQ(data[9 + lane], static_cast<double>(1 + lane) + 0.75);
+	}
+}
+#endif
