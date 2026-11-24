@@ -107,6 +107,7 @@ test_exe = executable(
 		'test/src/mapping.cpp',
 		'test/src/mapping_numa_test.cpp',
 		'test/src/mapping_phte_test.cpp',
+		'test/src/mat3_test.cpp',
 		'test/src/mat4_test.cpp',
 		'test/src/parse_test.cpp',
 		'test/src/quat_test.cpp',
@@ -127,6 +128,12 @@ test_exe = executable(
 )
 
 test('gtest', test_exe, protocol: 'gtest', timeout: 30)
+
+mat3_bench_exe = executable(
+	base_name + 'mat3-bench',
+	['bench/mat3_bench.cpp'],
+	include_directories: inc_dir,
+)
 
 harness_test_exe = executable(
 	base_name + 'harness-utest',
