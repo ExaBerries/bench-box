@@ -288,6 +288,32 @@ TEST(Vec2LI, Geometry) {
 	EXPECT_EQ(p.crs(vec2li{300000, 400000}), -20000000000);
 }
 
+TEST(Vec2F, MinMaxClamp) {
+	using bench_box::math::clamp;
+	using bench_box::math::max;
+	using bench_box::math::min;
+	using vec2f = bench_box::math::vec2f;
+
+	static_assert(min(vec2f{1.0f, 4.0f}, vec2f{3.0f, 2.0f}) == vec2f{1.0f, 2.0f});
+	static_assert(max(vec2f{1.0f, 4.0f}, vec2f{3.0f, 2.0f}) == vec2f{3.0f, 4.0f});
+	static_assert(clamp(vec2f{-1.0f, 5.0f}, vec2f{0.0f, 0.0f}, vec2f{3.0f, 3.0f}) == vec2f{0.0f, 3.0f});
+	static_assert(clamp(vec2f{1.0f, 2.0f}, vec2f{0.0f, 0.0f}, vec2f{3.0f, 3.0f}) == vec2f{1.0f, 2.0f});
+	static_assert(clamp(vec2f{-1.0f, 5.0f}, 0.0f, 3.0f) == vec2f{0.0f, 3.0f});
+}
+
+TEST(Vec2I, MinMaxClamp) {
+	using bench_box::math::clamp;
+	using bench_box::math::max;
+	using bench_box::math::min;
+	using vec2i = bench_box::math::vec2i;
+
+	static_assert(min(vec2i{1, 4}, vec2i{3, 2}) == vec2i{1, 2});
+	static_assert(max(vec2i{1, 4}, vec2i{3, 2}) == vec2i{3, 4});
+	static_assert(clamp(vec2i{-1, 5}, vec2i{0, 0}, vec2i{3, 3}) == vec2i{0, 3});
+	static_assert(clamp(vec2i{1, 2}, vec2i{0, 0}, vec2i{3, 3}) == vec2i{1, 2});
+	static_assert(clamp(vec2i{-1, 5}, 0, 3) == vec2i{0, 3});
+}
+
 #if defined(__clang__)
 #pragma clang diagnostic pop
 #elif defined(__GNUC__)

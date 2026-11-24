@@ -140,6 +140,16 @@ namespace bench_box {
 		constexpr vec3<T, A> operator*(const vec3<T, A>& left, T value) noexcept;
 		template <typename T, std::size_t A>
 		constexpr vec3<T, A> operator/(const vec3<T, A>& left, T value) noexcept;
+
+		template <typename T, std::size_t A>
+		[[nodiscard]] constexpr vec3<T, A> min(const vec3<T, A>& left, const vec3<T, A>& right) noexcept;
+		template <typename T, std::size_t A>
+		[[nodiscard]] constexpr vec3<T, A> max(const vec3<T, A>& left, const vec3<T, A>& right) noexcept;
+
+		template <typename T, std::size_t A>
+		[[nodiscard]] constexpr vec3<T, A> clamp(const vec3<T, A>& vector, const vec3<T, A>& lowest, const vec3<T, A>& highest) noexcept;
+		template <typename T, std::size_t A>
+		[[nodiscard]] constexpr vec3<T, A> clamp(const vec3<T, A>& vector, T lowest, T highest) noexcept;
 	} // namespace math
 } // namespace bench_box
 

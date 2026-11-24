@@ -291,6 +291,32 @@ TEST(Vec3LI, Geometry) {
 	EXPECT_TRUE((c == vec3li{0, 0, 100000}));
 }
 
+TEST(Vec3F, MinMaxClamp) {
+	using bench_box::math::clamp;
+	using bench_box::math::max;
+	using bench_box::math::min;
+	using vec3f = bench_box::math::vec3f;
+
+	static_assert(min(vec3f{1.0f, 4.0f, 2.0f}, vec3f{3.0f, 2.0f, 5.0f}) == vec3f{1.0f, 2.0f, 2.0f});
+	static_assert(max(vec3f{1.0f, 4.0f, 2.0f}, vec3f{3.0f, 2.0f, 5.0f}) == vec3f{3.0f, 4.0f, 5.0f});
+	static_assert(clamp(vec3f{-1.0f, 5.0f, 2.0f}, vec3f{0.0f, 0.0f, 0.0f}, vec3f{3.0f, 3.0f, 3.0f}) == vec3f{0.0f, 3.0f, 2.0f});
+	static_assert(clamp(vec3f{1.0f, 2.0f, 3.0f}, vec3f{0.0f, 0.0f, 0.0f}, vec3f{4.0f, 4.0f, 4.0f}) == vec3f{1.0f, 2.0f, 3.0f});
+	static_assert(clamp(vec3f{-1.0f, 5.0f, 2.0f}, 0.0f, 3.0f) == vec3f{0.0f, 3.0f, 2.0f});
+}
+
+TEST(Vec3I, MinMaxClamp) {
+	using bench_box::math::clamp;
+	using bench_box::math::max;
+	using bench_box::math::min;
+	using vec3i = bench_box::math::vec3i;
+
+	static_assert(min(vec3i{1, 4, 2}, vec3i{3, 2, 5}) == vec3i{1, 2, 2});
+	static_assert(max(vec3i{1, 4, 2}, vec3i{3, 2, 5}) == vec3i{3, 4, 5});
+	static_assert(clamp(vec3i{-1, 5, 2}, vec3i{0, 0, 0}, vec3i{3, 3, 3}) == vec3i{0, 3, 2});
+	static_assert(clamp(vec3i{1, 2, 3}, vec3i{0, 0, 0}, vec3i{4, 4, 4}) == vec3i{1, 2, 3});
+	static_assert(clamp(vec3i{-1, 5, 2}, 0, 3) == vec3i{0, 3, 2});
+}
+
 #if defined(__clang__)
 #pragma clang diagnostic pop
 #elif defined(__GNUC__)

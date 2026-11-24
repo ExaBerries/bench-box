@@ -241,6 +241,38 @@ namespace bench_box {
 		constexpr vec2<T, A> operator/(const vec2<T, A>& left, T value) noexcept {
 			return {left.x / value, left.y / value};
 		}
+
+		template <typename T, std::size_t A>
+		constexpr vec2<T, A> min(const vec2<T, A>& left, const vec2<T, A>& right) noexcept {
+			return {
+				left.x < right.x ? left.x : right.x,
+				left.y < right.y ? left.y : right.y
+			};
+		}
+
+		template <typename T, std::size_t A>
+		constexpr vec2<T, A> max(const vec2<T, A>& left, const vec2<T, A>& right) noexcept {
+			return {
+				left.x > right.x ? left.x : right.x,
+				left.y > right.y ? left.y : right.y
+			};
+		}
+
+		template <typename T, std::size_t A>
+		constexpr vec2<T, A> clamp(const vec2<T, A>& vector, const vec2<T, A>& lowest, const vec2<T, A>& highest) noexcept {
+			return {
+				vector.x < lowest.x ? lowest.x : (highest.x < vector.x ? highest.x : vector.x),
+				vector.y < lowest.y ? lowest.y : (highest.y < vector.y ? highest.y : vector.y)
+			};
+		}
+
+		template <typename T, std::size_t A>
+		constexpr vec2<T, A> clamp(const vec2<T, A>& vector, T lowest, T highest) noexcept {
+			return {
+				vector.x < lowest ? lowest : (highest < vector.x ? highest : vector.x),
+				vector.y < lowest ? lowest : (highest < vector.y ? highest : vector.y)
+			};
+		}
 	} // namespace math
 } // namespace bench_box
 
