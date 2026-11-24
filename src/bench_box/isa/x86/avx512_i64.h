@@ -16,6 +16,26 @@ namespace bench_box {
 			);
 		}
 
+		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE uint32_t maskbits8i64(const mask8& mask) noexcept {
+			return static_cast<uint32_t>(mask);
+		}
+
+		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE mask8 mask_from_bits8i64(uint32_t bits) noexcept {
+			return static_cast<mask8>(bits);
+		}
+
+		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg8i64 maskz_compress8i64(const reg8i64& a, const mask8& mask) noexcept {
+			return _mm512_maskz_compress_epi64(mask, a);
+		}
+
+		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg8i64 mask_compress8i64(const reg8i64& src, const reg8i64& a, const mask8& mask) noexcept {
+			return _mm512_mask_compress_epi64(src, mask, a);
+		}
+
+		BENCH_BOX_ALWAYS_INLINE void mask_compressstoreu8i64(int64_t& out, const mask8& mask, const reg8i64& a) noexcept {
+			_mm512_mask_compressstoreu_epi64(&out, mask, a);
+		}
+
 		template <int64_t m0, int64_t m1, int64_t m2, int64_t m3, int64_t m4, int64_t m5, int64_t m6, int64_t m7>
 		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg8i64 create_mask_8i64() noexcept {
 			alignas(alignof(reg8i64)) static constexpr int64_t mask_data[8] = {

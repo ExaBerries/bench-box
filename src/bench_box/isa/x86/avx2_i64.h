@@ -27,6 +27,19 @@ namespace bench_box {
 			);
 		}
 
+		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE uint32_t maskbits4i64(const reg4i64& mask) noexcept {
+			return static_cast<uint32_t>(_mm256_movemask_pd(cast4i64_to_4d(mask)));
+		}
+
+		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg4i64 mask_from_bits4i64(uint32_t bits) noexcept {
+			return create4i64(
+				(bits & 0x1u) != 0u ? -1 : 0,
+				(bits & 0x2u) != 0u ? -1 : 0,
+				(bits & 0x4u) != 0u ? -1 : 0,
+				(bits & 0x8u) != 0u ? -1 : 0
+			);
+		}
+
 		BENCH_BOX_ALWAYS_INLINE void store4i64(int64_t& out, const reg4i64& reg) noexcept {
 			_mm256_store_si256(reinterpret_cast<reg4i64*>(&out), reg);
 		}

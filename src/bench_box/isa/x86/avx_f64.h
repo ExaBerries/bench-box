@@ -4,8 +4,29 @@
 namespace bench_box {
 	namespace simd {
 
+		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg2d cast2i64_to_2d(const reg2i64& a) noexcept {
+			return _mm_castsi128_pd(a);
+		}
+
+		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg2i64 cast2d_to_2i64(const reg2d& a) noexcept {
+			return _mm_castpd_si128(a);
+		}
+
 		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg4d create4d(double m0, double m1, double m2, double m3) noexcept {
 			return _mm256_set_pd(m3, m2, m1, m0);
+		}
+
+		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE uint32_t maskbits4d(const reg4d& mask) noexcept {
+			return static_cast<uint32_t>(_mm256_movemask_pd(mask));
+		}
+
+		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg4d mask_from_bits4d(uint32_t bits) noexcept {
+			return create4d(
+				(bits & 0x1u) != 0u ? -0.0 : 0.0,
+				(bits & 0x2u) != 0u ? -0.0 : 0.0,
+				(bits & 0x4u) != 0u ? -0.0 : 0.0,
+				(bits & 0x8u) != 0u ? -0.0 : 0.0
+			);
 		}
 
 		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg4d load4d4d(const double& data) noexcept {

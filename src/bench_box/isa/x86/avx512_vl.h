@@ -10,6 +10,54 @@
 
 namespace bench_box {
 	namespace simd {
+		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg8i32 maskz_compress8i32(const reg8i32& a, const mask8& mask) noexcept {
+			return _mm256_maskz_compress_epi32(mask, a);
+		}
+
+		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg8i32 mask_compress8i32(const reg8i32& src, const reg8i32& a, const mask8& mask) noexcept {
+			return _mm256_mask_compress_epi32(src, mask, a);
+		}
+
+		BENCH_BOX_ALWAYS_INLINE void mask_compressstoreu8i32(int32_t& out, const mask8& mask, const reg8i32& a) noexcept {
+			_mm256_mask_compressstoreu_epi32(&out, mask, a);
+		}
+
+		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg4i32 maskz_compress4i32(const reg4i32& a, const mask8& mask) noexcept {
+			return _mm_maskz_compress_epi32(mask, a);
+		}
+
+		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg4i32 mask_compress4i32(const reg4i32& src, const reg4i32& a, const mask8& mask) noexcept {
+			return _mm_mask_compress_epi32(src, mask, a);
+		}
+
+		BENCH_BOX_ALWAYS_INLINE void mask_compressstoreu4i32(int32_t& out, const mask8& mask, const reg4i32& a) noexcept {
+			_mm_mask_compressstoreu_epi32(&out, mask, a);
+		}
+
+		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg4i64 maskz_compress4i64(const reg4i64& a, const mask8& mask) noexcept {
+			return _mm256_maskz_compress_epi64(mask, a);
+		}
+
+		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg4i64 mask_compress4i64(const reg4i64& src, const reg4i64& a, const mask8& mask) noexcept {
+			return _mm256_mask_compress_epi64(src, mask, a);
+		}
+
+		BENCH_BOX_ALWAYS_INLINE void mask_compressstoreu4i64(int64_t& out, const mask8& mask, const reg4i64& a) noexcept {
+			_mm256_mask_compressstoreu_epi64(&out, mask, a);
+		}
+
+		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg2i64 maskz_compress2i64(const reg2i64& a, const mask8& mask) noexcept {
+			return _mm_maskz_compress_epi64(mask, a);
+		}
+
+		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg2i64 mask_compress2i64(const reg2i64& src, const reg2i64& a, const mask8& mask) noexcept {
+			return _mm_mask_compress_epi64(src, mask, a);
+		}
+
+		BENCH_BOX_ALWAYS_INLINE void mask_compressstoreu2i64(int64_t& out, const mask8& mask, const reg2i64& a) noexcept {
+			_mm_mask_compressstoreu_epi64(&out, mask, a);
+		}
+
 		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg4d permutex2var4d(const reg4d& a, const reg4d& b, const reg4i64& idx) noexcept {
 			return _mm256_permutex2var_pd(a, idx, b);
 		}
@@ -85,6 +133,8 @@ namespace bench_box {
 	} // namespace simd
 } // namespace bench_box
 
+#include "avx512_vl_gather.h"
 #include "avx512_vl_scatter.h"
+#include "avx512_vl_cd.h"
 
 #endif

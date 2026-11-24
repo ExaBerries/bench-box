@@ -10,6 +10,26 @@ namespace bench_box {
 			return _mm512_set_epi32(m15, m14, m13, m12, m11, m10, m9, m8, m7, m6, m5, m4, m3, m2, m1, m0);
 		}
 
+		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE uint32_t maskbits16i32(const mask16& mask) noexcept {
+			return static_cast<uint32_t>(mask);
+		}
+
+		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE mask16 mask_from_bits16i32(uint32_t bits) noexcept {
+			return static_cast<mask16>(bits);
+		}
+
+		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg16i32 maskz_compress16i32(const reg16i32& a, const mask16& mask) noexcept {
+			return _mm512_maskz_compress_epi32(mask, a);
+		}
+
+		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg16i32 mask_compress16i32(const reg16i32& src, const reg16i32& a, const mask16& mask) noexcept {
+			return _mm512_mask_compress_epi32(src, mask, a);
+		}
+
+		BENCH_BOX_ALWAYS_INLINE void mask_compressstoreu16i32(int32_t& out, const mask16& mask, const reg16i32& a) noexcept {
+			_mm512_mask_compressstoreu_epi32(&out, mask, a);
+		}
+
 		template <int32_t m0, int32_t m1, int32_t m2, int32_t m3, int32_t m4, int32_t m5, int32_t m6, int32_t m7, int32_t m8, int32_t m9, int32_t m10, int32_t m11, int32_t m12, int32_t m13, int32_t m14, int32_t m15>
 		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg16i32 create_mask_16i32() noexcept {
 			alignas(alignof(reg16i32)) static constexpr int32_t mask_data[16] = {

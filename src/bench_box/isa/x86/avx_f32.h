@@ -8,6 +8,23 @@ namespace bench_box {
 			return _mm256_set_ps(m7, m6, m5, m4, m3, m2, m1, m0);
 		}
 
+		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE uint32_t maskbits8f(const reg8f& mask) noexcept {
+			return static_cast<uint32_t>(_mm256_movemask_ps(mask));
+		}
+
+		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg8f mask_from_bits8f(uint32_t bits) noexcept {
+			return create8f(
+				(bits & 0x01u) != 0u ? -0.0f : 0.0f,
+				(bits & 0x02u) != 0u ? -0.0f : 0.0f,
+				(bits & 0x04u) != 0u ? -0.0f : 0.0f,
+				(bits & 0x08u) != 0u ? -0.0f : 0.0f,
+				(bits & 0x10u) != 0u ? -0.0f : 0.0f,
+				(bits & 0x20u) != 0u ? -0.0f : 0.0f,
+				(bits & 0x40u) != 0u ? -0.0f : 0.0f,
+				(bits & 0x80u) != 0u ? -0.0f : 0.0f
+			);
+		}
+
 		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg8f load8f8f(const float& data) noexcept {
 			return _mm256_load_ps(&data);
 		}

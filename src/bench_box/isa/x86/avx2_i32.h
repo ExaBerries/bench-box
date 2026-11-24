@@ -7,6 +7,23 @@ namespace bench_box {
 			return _mm256_set_epi32(m7, m6, m5, m4, m3, m2, m1, m0);
 		}
 
+		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE uint32_t maskbits8i32(const reg8i32& mask) noexcept {
+			return static_cast<uint32_t>(_mm256_movemask_ps(cast8i32_to_8f(mask)));
+		}
+
+		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg8i32 mask_from_bits8i32(uint32_t bits) noexcept {
+			return create8i32(
+				(bits & 0x01u) != 0u ? -1 : 0,
+				(bits & 0x02u) != 0u ? -1 : 0,
+				(bits & 0x04u) != 0u ? -1 : 0,
+				(bits & 0x08u) != 0u ? -1 : 0,
+				(bits & 0x10u) != 0u ? -1 : 0,
+				(bits & 0x20u) != 0u ? -1 : 0,
+				(bits & 0x40u) != 0u ? -1 : 0,
+				(bits & 0x80u) != 0u ? -1 : 0
+			);
+		}
+
 		template <int32_t m0, int32_t m1, int32_t m2, int32_t m3, int32_t m4, int32_t m5, int32_t m6, int32_t m7>
 		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg8i32 create_mask_8i32() noexcept {
 			alignas(alignof(reg8i32)) static constexpr int32_t mask_data[8] = {

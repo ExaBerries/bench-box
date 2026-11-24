@@ -25,5 +25,6 @@ namespace bench_box {
 #include "sse2_f64.h"
 #include "sse2_f32.h"
 #include "sse2_i32.h"
+#include "sse2_gather.h"
 
 #endif

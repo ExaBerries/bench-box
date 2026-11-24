@@ -27,5 +27,6 @@ namespace bench_box {
 #include "avx2_i32.h"
 #include "avx2_i64.h"
 #include "avx2_gather.h"
+#include "avx2_scatter.h"
 
 #endif

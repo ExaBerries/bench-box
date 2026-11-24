@@ -7,6 +7,17 @@ namespace bench_box {
 			return _mm_set_pd(m1, m0);
 		}
 
+		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE uint32_t maskbits2d(const reg2d& mask) noexcept {
+			return static_cast<uint32_t>(_mm_movemask_pd(mask));
+		}
+
+		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg2d mask_from_bits2d(uint32_t bits) noexcept {
+			return create2d(
+				(bits & 0x1u) != 0u ? -0.0 : 0.0,
+				(bits & 0x2u) != 0u ? -0.0 : 0.0
+			);
+		}
+
 		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg2d load2d2d(const double& data) noexcept {
 			return _mm_load_pd(&data);
 		}

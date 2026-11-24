@@ -7,6 +7,14 @@ namespace bench_box {
 			return _mm512_set_pd(m7, m6, m5, m4, m3, m2, m1, m0);
 		}
 
+		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE uint32_t maskbits8d(const mask8& mask) noexcept {
+			return static_cast<uint32_t>(mask);
+		}
+
+		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE mask8 mask_from_bits8d(uint32_t bits) noexcept {
+			return static_cast<mask8>(bits);
+		}
+
 		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg8d zero_reg8d() noexcept {
 			return _mm512_setzero_pd();
 		}

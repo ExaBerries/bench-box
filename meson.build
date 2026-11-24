@@ -115,6 +115,7 @@ test_exe = executable(
 		'test/src/simd_create_test.cpp',
 		'test/src/simd_gather_scatter_test.cpp',
 		'test/src/simd_i64_test.cpp',
+		'test/src/simd_mask_test.cpp',
 		'test/src/timer_test.cpp',
 		'test/src/vec2_soa_test.cpp',
 		'test/src/vec2_test.cpp',

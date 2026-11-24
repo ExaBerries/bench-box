@@ -3,6 +3,14 @@
 
 namespace bench_box {
 	namespace simd {
+		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg4d cast4i64_to_4d(const reg4i64& a) noexcept {
+			return _mm256_castsi256_pd(a);
+		}
+
+		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg4i64 cast4d_to_4i64(const reg4d& a) noexcept {
+			return _mm256_castpd_si256(a);
+		}
+
 		template <uint32_t m0, uint32_t m1, uint32_t m2, uint32_t m3>
 		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg4d permute4d(const reg4d& a) noexcept {
 			return _mm256_permute4x64_pd(a, _MM_SHUFFLE(m3, m2, m1, m0));

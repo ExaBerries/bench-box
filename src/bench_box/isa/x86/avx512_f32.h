@@ -10,6 +10,14 @@ namespace bench_box {
 			return _mm512_set_ps(m15, m14, m13, m12, m11, m10, m9, m8, m7, m6, m5, m4, m3, m2, m1, m0);
 		}
 
+		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE uint32_t maskbits16f(const mask16& mask) noexcept {
+			return static_cast<uint32_t>(mask);
+		}
+
+		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE mask16 mask_from_bits16f(uint32_t bits) noexcept {
+			return static_cast<mask16>(bits);
+		}
+
 		[[nodiscard]] BENCH_BOX_ALWAYS_INLINE reg16f zero_reg16f() noexcept {
 			return _mm512_setzero_ps();
 		}
