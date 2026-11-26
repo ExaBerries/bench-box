@@ -1,7 +1,8 @@
 #include <bench_box/threading/threading.h>
-#include <numeric>
-#include <map>
 #include <algorithm>
+#include <cstddef>
+#include <thread>
+#include <utility>
 
 #if defined(_WIN32)
 	#define WIN32_LEAN_AND_MEAN
@@ -10,280 +11,46 @@
 #elif defined(__linux__)
 	#include <pthread.h>
 	#include <sched.h>
-	#include <sys/resource.h>
-	#include <cerrno>
-#elif defined(__APPLE__)
-	#include <pthread.h>
-	#include <pthread/qos.h>
-	#include <sched.h>
-	#include <sys/resource.h>
 #endif
 
 namespace bench_box {
-	[[nodiscard]] const char* thread_priority_name(thread_priority prio) noexcept {
-		switch (prio) {
-			case thread_priority::background: return "background";
-			case thread_priority::low: return "low";
-			case thread_priority::normal: return "normal";
-			case thread_priority::high: return "high";
-			case thread_priority::realtime: return "realtime";
-		}
-		return "unknown";
-	}
-
-	[[nodiscard]] std::optional<thread_priority> parse_thread_priority(std::string_view str) noexcept {
-		if (str == "background") {
-			return thread_priority::background;
-		}
-		if (str == "low") {
-			return thread_priority::low;
-		}
-		if (str == "normal") {
-			return thread_priority::normal;
-		}
-		if (str == "high") {
-			return thread_priority::high;
-		}
-		if (str == "realtime") {
-			return thread_priority::realtime;
-		}
-		return std::nullopt;
-	}
-
-	#if defined(_WIN32)
-		// because of windows 7 compat flags, the SDK won't expose the win8+ API we need for disabling power throttling
-		struct power_throttling_state {
-			uint32_t version;
-			uint32_t control_mask;
-			uint32_t state_mask;
-		};
-
-		static constexpr uint32_t power_throttling_current_version = 1u;
-		static constexpr uint32_t power_throttling_execution_speed = 0x1u;
-		static constexpr int process_information_class_power_throttling = 4;
-
-		using set_process_information_t = BOOL (WINAPI*)(HANDLE, int, void*, uint32_t);
-
-		static bool disable_win_process_power_throttling() noexcept {
-			const auto kernel32 = GetModuleHandleW(L"kernel32.dll");
-			if (kernel32 == nullptr) {
-				return true; // pre win8: no throttling to disable
-			}
-			const auto set_process_information = reinterpret_cast<set_process_information_t>(GetProcAddress(kernel32, "SetProcessInformation"));
-			if (set_process_information == nullptr) {
-				return true; // pre win8: no throttling to disable
-			}
-			power_throttling_state state = {
-				power_throttling_current_version,
-				power_throttling_execution_speed,
-				0u // state mask 0 = opt out of the controlled policy
-			};
-			return set_process_information(GetCurrentProcess(), process_information_class_power_throttling, &state, sizeof(state)) != 0;
-		}
-
-		static bool enable_win_privilege(const wchar_t* name) noexcept {
-			HANDLE token = nullptr;
-			if (OpenProcessToken(GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY, &token) == 0) {
-				return false;
-			}
-
-			LUID luid = {};
-			bool enabled = false;
-			if (LookupPrivilegeValueW(nullptr, name, &luid) != 0) {
-				TOKEN_PRIVILEGES privileges = {};
-				privileges.PrivilegeCount = 1;
-				privileges.Privileges[0].Luid = luid;
-				privileges.Privileges[0].Attributes = SE_PRIVILEGE_ENABLED;
-				// adjusttokenprivileges succeeds even when it doesn't assign anything, so the last error has to be checked as well
-				SetLastError(ERROR_SUCCESS);
-				enabled = AdjustTokenPrivileges(token, FALSE, &privileges, 0, nullptr, nullptr) != 0 && GetLastError() == ERROR_SUCCESS;
-			}
-
-			CloseHandle(token);
-			return enabled;
-		}
-
-		[[nodiscard]] static int to_win_thread_priority(thread_priority prio) noexcept {
-			switch (prio) {
-				case thread_priority::background: return THREAD_PRIORITY_IDLE;
-				case thread_priority::low: return THREAD_PRIORITY_BELOW_NORMAL;
-				case thread_priority::normal: return THREAD_PRIORITY_NORMAL;
-				case thread_priority::high: return THREAD_PRIORITY_HIGHEST;
-				case thread_priority::realtime: return THREAD_PRIORITY_TIME_CRITICAL;
-			}
-			return THREAD_PRIORITY_NORMAL;
-		}
-
-		[[nodiscard]] static uint32_t to_win_priority_class(thread_priority prio) noexcept {
-			switch (prio) {
-				case thread_priority::background: return IDLE_PRIORITY_CLASS;
-				case thread_priority::low: return BELOW_NORMAL_PRIORITY_CLASS;
-				case thread_priority::normal: return NORMAL_PRIORITY_CLASS;
-				case thread_priority::high: return ABOVE_NORMAL_PRIORITY_CLASS;
-				case thread_priority::realtime: return REALTIME_PRIORITY_CLASS; // needs SeIncreaseBasePriorityPrivilege
-			}
-			return NORMAL_PRIORITY_CLASS;
-		}
-	#elif defined(__linux__)
-		[[nodiscard]] static int to_linux_nice(thread_priority prio) noexcept {
-			switch (prio) {
-				case thread_priority::background: return 10;
-				case thread_priority::low: return 5;
-				case thread_priority::normal: return 0;
-				case thread_priority::high: return -10;
-				case thread_priority::realtime: return 0; // unused, realtime switches the scheduling policy instead
-			}
-			return 0;
-		}
-	#elif defined(__APPLE__)
-		[[nodiscard]] static qos_class_t to_apple_qos(thread_priority prio) noexcept {
-			switch (prio) {
-				case thread_priority::background: return QOS_CLASS_BACKGROUND;
-				case thread_priority::low: return QOS_CLASS_UTILITY;
-				case thread_priority::normal: return QOS_CLASS_DEFAULT;
-				case thread_priority::high: return QOS_CLASS_USER_INITIATED;
-				case thread_priority::realtime: return QOS_CLASS_USER_INTERACTIVE; // strongest unprivileged level
-			}
-			return QOS_CLASS_DEFAULT;
-		}
-	#endif
-
-	[[nodiscard]] bool set_process_priority([[maybe_unused]] thread_priority prio) noexcept {
+	[[nodiscard]] std::optional<processor_location> current_processor() noexcept {
 		#if defined(_WIN32)
-			const auto target = to_win_priority_class(prio);
-			if (prio == thread_priority::realtime) {
-				// realtime requires additional privilege, and its disabled by default even for admin
-				const bool already_realtime = GetPriorityClass(GetCurrentProcess()) == REALTIME_PRIORITY_CLASS;
-				if (!enable_win_privilege(L"SeIncreaseBasePriorityPrivilege") && !already_realtime) {
-					return false;
-				}
-			}
-			if (SetPriorityClass(GetCurrentProcess(), target) == 0) {
-				return false;
-			}
-			return GetPriorityClass(GetCurrentProcess()) == target;
-		#elif defined(__linux__) || defined(__APPLE__)
-			// nice / qos are per thread, so this only affects the calling thread, threads created afterwards inherit the setting
-			return set_thread_priority(prio);
-		#else
-			return false;
-		#endif
-	}
-
-	[[nodiscard]] bool disable_process_power_throttling() noexcept {
-		#if defined(_WIN32)
-			return disable_win_process_power_throttling();
-		#else
-			return true;
-		#endif
-	}
-
-	[[nodiscard]] bool set_thread_priority([[maybe_unused]] thread_priority prio) noexcept {
-		#if defined(_WIN32)
-			if (prio == thread_priority::realtime && GetPriorityClass(GetCurrentProcess()) != REALTIME_PRIORITY_CLASS) {
-				return false; // priorities above 15 only exist inside the realtime class
-			}
-			const auto thread = GetCurrentThread();
-			const auto target = to_win_thread_priority(prio);
-			if (SetThreadPriority(thread, target) == 0) {
-				return false;
-			}
-			return GetThreadPriority(thread) == target;
+			PROCESSOR_NUMBER number = {};
+			GetCurrentProcessorNumberEx(&number);
+			return processor_location{static_cast<uint32_t>(number.Group), static_cast<uint32_t>(number.Number)};
 		#elif defined(__linux__)
-			if (prio == thread_priority::realtime) {
-				sched_param param = {};
-				param.sched_priority = 50;
-				if (sched_setscheduler(0, SCHED_FIFO, &param) != 0) {
-					return false;
-				}
-				return sched_getscheduler(0) == SCHED_FIFO;
+			const auto cpu = sched_getcpu();
+			if (cpu < 0) {
+				return std::nullopt;
 			}
-
-			// leave a realtime policy behind if a previous call set one
-			if (sched_getscheduler(0) != SCHED_OTHER) {
-				sched_param param = {};
-				if (sched_setscheduler(0, SCHED_OTHER, &param) != 0) {
-					return false;
-				}
-			}
-
-			const auto target = to_linux_nice(prio);
-			// nice is per thread on linux and pid 0 means the calling thread
-			if (setpriority(PRIO_PROCESS, 0, target) != 0) {
-				return false;
-			}
-			errno = 0;
-			const auto applied = getpriority(PRIO_PROCESS, 0);
-			return errno == 0 && applied == target;
-		#elif defined(__APPLE__)
-			const auto legacy_background = (prio == thread_priority::background) ? PRIO_DARWIN_BG : 0;
-			if (setpriority(PRIO_DARWIN_THREAD, 0, legacy_background) != 0) {
-				return false;
-			}
-
-			int policy = 0;
-			sched_param current = {};
-			if (pthread_getschedparam(pthread_self(), &policy, &current) != 0) {
-				return false;
-			}
-
-			// leave a realtime policy behind if a previous call set one
-			if (prio != thread_priority::realtime && policy != SCHED_OTHER) {
-				sched_param other = {};
-				if (pthread_setschedparam(pthread_self(), SCHED_OTHER, &other) != 0) {
-					return false;
-				}
-			}
-
-			const bool qos_applied = pthread_set_qos_class_self_np(to_apple_qos(prio), 0) == 0;
-			if (prio != thread_priority::realtime) {
-				return qos_applied;
-			}
-
-			// realtime is a hint plus a real scheduling policy, the latter needs root
-			const auto max_priority = sched_get_priority_max(SCHED_FIFO);
-			if (max_priority < 1) {
-				return false;
-			}
-			sched_param realtime = {};
-			realtime.sched_priority = std::min(50, max_priority);
-			if (pthread_setschedparam(pthread_self(), SCHED_FIFO, &realtime) != 0) {
-				return false;
-			}
-
-			policy = 0;
-			sched_param applied = {};
-			if (pthread_getschedparam(pthread_self(), &policy, &applied) != 0) {
-				return false;
-			}
-			return qos_applied && policy == SCHED_FIFO;
+			return processor_location{0u, static_cast<uint32_t>(cpu)};
 		#else
-			return false;
+			return std::nullopt;
 		#endif
 	}
 
-	void assign_thread([[maybe_unused]] uint32_t os_id, [[maybe_unused]] uint32_t group_id) noexcept {
+	void assign_thread(processor_location location) noexcept {
 		#if defined(_WIN32)
 			GROUP_AFFINITY affinity = {};
-			affinity.Mask = (1ULL << os_id);
-			affinity.Group = group_id;
+			affinity.Mask = (1ULL << location.os_id);
+			affinity.Group = static_cast<WORD>(location.group_id);
 			SetThreadGroupAffinity(GetCurrentThread(), &affinity, nullptr);
 		#elif defined(__linux__)
 			cpu_set_t cpuset;
 			CPU_ZERO(&cpuset);
-			CPU_SET(os_id, &cpuset);
+			CPU_SET(location.os_id, &cpuset);
 			pthread_setaffinity_np(pthread_self(), sizeof(cpu_set_t), &cpuset);
 		#endif
 	}
 
-	void assign_thread(const threading_manager& thread_manager, uint32_t thread_id) noexcept {
-		if (thread_id < thread_manager.thread_mapping.size()) {
-			[[maybe_unused]] const auto& lp = thread_manager.thread_mapping[thread_id];
-			assign_thread(lp.os_id, lp.group_id);
+	void assign_thread(const affinity_map& aff_map, uint32_t thread_id) noexcept {
+		if (thread_id < aff_map.size()) {
+			assign_thread(aff_map[thread_id]);
 		}
 	}
 
-	[[nodiscard]] std::vector<logical_processor> create_mapping_basic() noexcept {
+	[[nodiscard]] affinity_map create_mapping_basic() noexcept {
 		return {};
 	}
 
@@ -295,7 +62,7 @@ namespace bench_box {
 	static groups_t build_groups_int_numa_int_llc(const topology_tree& topo_tree, uint32_t perf_level) noexcept {
 		std::vector<std::vector<const core*>> groups;
 		std::size_t max_threads = 0u;
-		std::size_t max_llc_count = 0;
+		std::size_t max_llc_count = 0u;
 		for (const auto& node : topo_tree.numa_nodes) {
 			max_llc_count = std::max(max_llc_count, node.llc_groups.size());
 		}
@@ -335,7 +102,7 @@ namespace bench_box {
 			max_cores = std::max(max_cores, g.size());
 		}
 
-		for (size_t i = 0; i < max_cores; ++i) {
+		for (size_t i = 0; i < max_cores; i++) {
 			for (const auto& g : groups) {
 				if (i < g.size()) {
 					for (auto t = 0u; t < max_threads; t++) {
@@ -348,16 +115,19 @@ namespace bench_box {
 		}
 	}
 
-	static void add_threads_to_result(std::vector<logical_processor>& result, const thread_lists_t& thread_lists) noexcept {
+	static void add_threads_to_result(affinity_map& result, const thread_lists_t& thread_lists) noexcept {
 		for (const auto& thread_list : thread_lists) {
 			for (const auto* lp : thread_list) {
-				result.push_back(*lp);
+				result.push_back({
+					lp->group_id,
+					lp->os_id
+				});
 			}
 		}
 	}
 
-	[[nodiscard]] std::vector<logical_processor> create_mapping_numa(const topology_tree& topo_tree) noexcept {
-		std::vector<logical_processor> result{};
+	[[nodiscard]] affinity_map create_mapping_numa(const topology_tree& topo_tree) noexcept {
+		affinity_map result{};
 		if (topo_tree.numa_nodes.empty()) {
 			return result;
 		}
@@ -365,7 +135,7 @@ namespace bench_box {
 		std::vector<groups_t> levels;
 		levels.reserve(topo_tree.perf_level_count);
 		std::size_t max_threads = 0u;
-		for (uint32_t lvl = 0; lvl < topo_tree.perf_level_count; lvl++) {
+		for (auto lvl = 0u; lvl < topo_tree.perf_level_count; lvl++) {
 			levels.push_back(build_groups_int_numa_int_llc(topo_tree, lvl));
 			max_threads = std::max(max_threads, levels.back().max_threads);
 		}
@@ -380,8 +150,8 @@ namespace bench_box {
 		return result;
 	}
 
-	[[nodiscard]] std::vector<logical_processor> create_mapping_phte(const topology_tree& topo_tree) noexcept {
-		std::vector<logical_processor> result{};
+	[[nodiscard]] affinity_map create_mapping_phte(const topology_tree& topo_tree) noexcept {
+		affinity_map result{};
 		if (topo_tree.numa_nodes.empty()) {
 			return result;
 		}
@@ -389,7 +159,7 @@ namespace bench_box {
 		std::vector<std::vector<const logical_processor*>> thread_lists;
 
 		// each perf tier is fully separated (no interleaving across tiers)
-		for (uint32_t lvl = 0; lvl < topo_tree.perf_level_count; lvl++) {
+		for (auto lvl = 0u; lvl < topo_tree.perf_level_count; lvl++) {
 			auto [groups, mt] = build_groups_int_numa_int_llc(topo_tree, lvl);
 			initalize_thread_lists(thread_lists, mt);
 			interleave(thread_lists, groups);
@@ -399,9 +169,9 @@ namespace bench_box {
 		return result;
 	}
 
-	[[nodiscard]] uint32_t get_default_thread_count(const topology_tree& tree) noexcept {
+	[[nodiscard]] uint32_t get_physical_core_count(const topology_tree& tree) noexcept {
 		if (tree.numa_nodes.empty()) {
-			return std::thread::hardware_concurrency();
+			return std::thread::hardware_concurrency(); // yes this will include hyperthreads but its the best we have...
 		}
 
 		uint32_t count = 0;

@@ -1,4 +1,5 @@
 #include <gtest/gtest.h>
+#include <bench_box/threading/priority.h>
 #include <bench_box/threading/threading.h>
 #include <array>
 

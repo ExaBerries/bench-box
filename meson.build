@@ -70,6 +70,8 @@ base_name = 'bench-box-'
 
 sources_core = [
 	'src/bench_box/memory/memory.cpp',
+	'src/bench_box/threading/numa.cpp',
+	'src/bench_box/threading/priority.cpp',
 	'src/bench_box/threading/threading.cpp',
 	'src/bench_box/threading/topology.cpp',
 	'src/bench_box/timer.cpp',
@@ -109,6 +111,7 @@ test_exe = executable(
 		'test/src/mapping_phte_test.cpp',
 		'test/src/mat3_test.cpp',
 		'test/src/mat4_test.cpp',
+		'test/src/numa_test.cpp',
 		'test/src/parse_test.cpp',
 		'test/src/quat_test.cpp',
 		'test/src/simd_4_test.cpp',
