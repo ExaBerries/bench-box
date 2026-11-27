@@ -82,6 +82,7 @@ TEST(Vec3Soa, ComponentAccessAndSetGet) {
 
 TEST(Vec3Soa, Reference) {
 	vec3f_soa values(2);
+	ASSERT_TRUE(values.valid());
 
 	values[0] = bench_box::math::vec3f{1.0f, 2.0f, 3.0f};
 	values[1] = bench_box::math::vec3f{4.0f, 5.0f, 6.0f};
@@ -129,6 +130,7 @@ TEST(Vec3Soa, ConstructionAndFill) {
 
 TEST(Vec3Soa, IntegralTypes) {
 	vec3i_soa integers(2);
+	ASSERT_TRUE(integers.valid());
 	integers.fill(1, 2, 3);
 	integers[1] = bench_box::math::vec3i{4, 5, 6};
 	integers[0] *= 2;
@@ -138,6 +140,7 @@ TEST(Vec3Soa, IntegralTypes) {
 	EXPECT_TRUE((integers.get(1) == bench_box::math::vec3i{8, 10, 12}));
 
 	vec3li_soa wide(1);
+	ASSERT_TRUE(wide.valid());
 	wide.set(0, std::int64_t{7}, std::int64_t{8}, std::int64_t{9});
 	EXPECT_TRUE((wide.get(0) == bench_box::math::vec3li{7, 8, 9}));
 }

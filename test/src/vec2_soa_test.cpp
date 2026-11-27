@@ -75,6 +75,7 @@ TEST(Vec2Soa, ComponentAccessAndSetGet) {
 
 TEST(Vec2Soa, Reference) {
 	vec2f_soa values(2);
+	ASSERT_TRUE(values.valid());
 
 	values[0] = bench_box::math::vec2f{1.0f, 2.0f};
 	values[1] = bench_box::math::vec2f{3.0f, 4.0f};
@@ -121,6 +122,7 @@ TEST(Vec2Soa, ConstructionAndFill) {
 
 TEST(Vec2Soa, IntegralTypes) {
 	vec2i_soa integers(2);
+	ASSERT_TRUE(integers.valid());
 	integers.fill(1, 2);
 	integers[1] = bench_box::math::vec2i{3, 4};
 	integers[0] *= 2;
@@ -130,6 +132,7 @@ TEST(Vec2Soa, IntegralTypes) {
 	EXPECT_TRUE((integers.get(1) == bench_box::math::vec2i{6, 8}));
 
 	vec2li_soa wide(1);
+	ASSERT_TRUE(wide.valid());
 	wide.set(0, std::int64_t{7}, std::int64_t{8});
 	EXPECT_TRUE((wide.get(0) == bench_box::math::vec2li{7, 8}));
 }
